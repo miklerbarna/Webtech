@@ -99,7 +99,7 @@ CREATE TABLE station_reviews (
 INSERT INTO bike_stations(name, address, city, latitude, longitude,places_taken, places_all) VALUES
 ('Station A', '123 Main St', 'Cityville', 40.7128, -74.006, 10,	10),
 ('Station B', '456 Elm St', 'Townsville', 35.6895, 139.6917, 10, 10),
-('Station C', '789 Oak St', 'Villageton', 51.5074, -0.1278	10, 10);
+('Station C', '789 Oak St', 'Villageton', 51.5074, -0.1278,	10, 10);
 
 INSERT INTO bike_categories(name) VALUES
 ('electric'),
@@ -107,7 +107,7 @@ INSERT INTO bike_categories(name) VALUES
 ('mountain'),
 ('universal');
 
-INSERT INTO parking_places(place_id,station_id,place_number,category_id) VALUES
+INSERT INTO parking_places(station_id,place_number,category_id) VALUES
 (1, 1, 4),
 (1, 2, 4),
 (1, 3, 4),
@@ -140,10 +140,10 @@ INSERT INTO parking_places(place_id,station_id,place_number,category_id) VALUES
 (3, 10, 3);
 
 INSERT INTO bike_models(category_id, name, description, wheel_size, manufacturer, brakes_type) VALUES
-(1,	'Electric Model A',	'An electric bike with advanced features',	26	'ElectroBike Co.',	'Disc'),
+(1,	'Electric Model A',	'An electric bike with advanced features',	26,	'ElectroBike Co.',	'Disc'),
 (1,	'Electric Model B',	'A sleek and powerful electric bike',	28,	'EcoRide',	'Hydraulic'),
 (2,	'Kids Model X',	'A fun and colorful bike for children',	20,	'KidCycles',	'Caliper'),
-(2,	'Kids Model Y',	'Durable and safe bike for young riders',	16	'TinyBikes',	'Coaster'),
+(2,	'Kids Model Y',	'Durable and safe bike for young riders',	16,	'TinyBikes',	'Coaster'),
 (3,	'Mountain Model 1',	'Designed for off-road adventures',	29,	'TrailBlazer',	'Disc'),
 (3,	'Mountain Model 2',	'Agile and sturdy mountain bike',	28,	'SummitCycles',	'Hydraulic');
 
@@ -220,9 +220,9 @@ INSERT INTO customers(email, password_hash, wallet_balance) VALUES
 
 INSERT INTO booked_tickets(customer_id, bike_id, start_time, end_time, ticket_price, station_id, status) VALUES
 (1,	11,	'2024-02-29 08:00:00',	'2024-02-29 10:00:00',	20.00,	1,	'bought'),
-(3,	3,	'2024-02-15 07:00:00',	'2024-02-15 09:00:00',	20.00,	2,	'bought')
+(3,	3,	'2024-02-15 07:00:00',	'2024-02-15 09:00:00',	20.00,	2,	'bought');
 
-INSERT INTO model_reviews(model_id, customer, rating, review_text) VALUES
+INSERT INTO model_reviews(model_id, customer_id, rating, review_text) VALUES
 (3,	1,	4,	'Lovely childs bike'),
 (3,	3,	5,	'Very safe bike'),
 (4,	2,	3,	'There is room for improvement..'),
@@ -232,7 +232,7 @@ INSERT INTO model_reviews(model_id, customer, rating, review_text) VALUES
 (5,	3,	4,	'Very durable bike');
 
 
-INSERT INTO model_reviews(station_id_id, customer, rating, review_text) VALUES
+INSERT INTO station_reviews(station_id, customer_id, rating, review_text) VALUES
 (1,	1,	5,	'Plenty of bikes available and easy to use'),
 (1,	2,	4,	'Convenient location'),
 (2,	3,	3,	'This station needs improvement'),
