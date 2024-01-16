@@ -1,0 +1,77 @@
+<!-- List of Bikes View -->
+<div *ngIf="!selectedBike && !editingCategories && !editingModels" class="bike-list">
+  <button (click)="navigateToStations()" class="station-view-button">Enter Station View</button>
+  <button (click)="editingCategories = true">Edit Categories</button>
+  <button (click)="editingModels = true">Edit Models</button>
+    <div *ngFor="let bike of bikes" 
+         class="bike-item" 
+         [ngClass]="{'mountain-bike': bike.category === 'mountain bike', 
+                     'electric-bike': bike.category === 'electric bike',
+                     'city-bike': bike.category === 'city bike',
+                     'children-bike': bike.category === 'children bike'}"
+         (click)="selectBike(bike)">
+  
+      <div class="bike-details">
+        <span class="bike-id">ID: {{ bike.id }}</span>
+        <span class="bike-location">Station: {{ bike.stationId }}, Spot: {{ bike.parkingSpot }}</span>
+        <span class="bike-category">Category: {{ bike.category }}</span>
+        <span class="bike-model">Model: {{ bike.model }}</span>
+      </div>
+    </div>
+  </div>
+
+
+<!-- Category Editing View -->
+<div *ngIf="editingCategories" class="category-list">
+  <button (click)="editingCategories = false">Back to Bikes</button>
+  <button (click)="addCategory()">Add Category</button>
+
+  <div *ngFor="let category of categories" class="category-item" [ngClass]="{'mountain-bike': category.name === 'mountain bike', 
+  'electric-bike': category.name === 'electric bike',
+  'city-bike': category.name === 'city bike',
+  'children-bike': category.name === 'children bike'}">
+    {{ category.name }}
+    <button (click)="editCategory(category)">Edit</button>
+    <button (click)="deleteCategory(category.name)">Delete</button>
+  </div>
+</div>
+  
+<!-- Model Editing View -->
+<div *ngIf="editingModels" class="model-editing-view">
+  <button (click)="editingModels = false">Back to Bikes</button>
+  <button (click)="addModel()">Add Model</button>
+
+  <div *ngFor="let model of uniqueModels" class="model-item" 
+  [ngClass]="{'mountain-bike': model.category === 'mountain bike', 
+  'electric-bike': model.category === 'electric bike',
+  'city-bike': model.category === 'city bike',
+  'children-bike': model.category === 'children bike'}">
+    <div class="model-details">
+      <span class="bike-category">Category: {{ model.category }}</span>
+      <span class="bike-model">Model: {{ model.name }}</span>
+    </div>
+    <button (click)="editModel(model)">Edit</button>
+    <button (click)="deleteModel(model.name)">Delete</button>
+  </div>
+</div>
+
+<!-- Individual Bike Editing View -->
+<div *ngIf="selectedBike" class="bike-details-view">
+  <button (click)="selectedBike = null">Close Details</button>
+    <h3>Bike Details: {{ selectedBike.model }} (ID: {{ selectedBike.id }})</h3>
+    <p>Category: {{ selectedBike.category }}</p>
+    <p>Model: {{ selectedBike.model }}</p>
+    <p>Current Station: {{ selectedBike.stationId }}</p>
+    <p>Parking Spot: {{ selectedBike.parkingSpot }}</p>
+    <div class="bike-reviews">
+        <h4>Customer Reviews:</h4>
+        <div *ngFor="let review of selectedBike.reviews">
+        <p><strong>User {{ review.userId }}:</strong> {{ review.comment }} (Rating: {{ review.rating }}/5)</p>
+        </div>
+    </div>
+    <button (click)="editBike(selectedBike)">Edit Bike</button>
+    <button (click)="deleteBike(selectedBike.id)">Delete Bike</button>
+    
+</div>
+  
+  

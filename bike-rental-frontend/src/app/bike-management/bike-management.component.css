@@ -1,0 +1,116 @@
+.bike-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+}
+
+.bike-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.mountain-bike {
+  background-color: #fdedb3; /* Khaki for mountain bikes */
+}
+
+.electric-bike {
+  background-color: #bdf0d0; /* Light Green for electric bikes */
+}
+
+.city-bike {
+  background-color: #add8e6; /* Light Blue for city bikes */
+}
+
+.children-bike {
+  background-color: #ffd7dd; /* Light Pink for children bikes */
+}
+.bike-details-view {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 5px;
+}
+
+.bike-details-view h3, .bike-details-view h4 {
+  margin: 0 0 10px 0;
+}
+
+.bike-reviews {
+  margin-top: 15px;
+}
+
+.bike-details-view button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+
+.bike-details-view button:hover {
+  background-color: #ddd;
+}
+
+.bike-id{
+  font-weight: bold;
+}
+
+.category-item {
+  /* Styles for category items */
+  margin-bottom: 10px;
+}
+
+.category-item button {
+  /* Styles for category action buttons */
+  margin-left: 10px;
+}
+  
+button {
+  margin-top: 10px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-bottom: 10px;
+  margin-right: 9px;
+  border: none;
+}
+
+.category-item button{
+  border-width: 1.7px;
+}
+    
+.category-item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.model-editing-view {
+  /* Styles for model editing view */
+}
+
+.model-item {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.model-item button {
+  /* Styles for model action buttons */
+  margin-left: 10px;
+  border-width: 1.5px;
+}
+
+.model-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.station-view-button{
+  font-size: large;
+  font-weight: bold;
+}

@@ -1,0 +1,22 @@
+<div class="login-register-container">
+    <div class="login-form">
+        <h2>Login</h2>
+        <form (submit)="login()">
+        <input type="text" placeholder="Username" [(ngModel)]="loginData.username" name="username">
+        <input type="password" placeholder="Password" [(ngModel)]="loginData.password" name="password">
+        <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <div class="register-form">
+        <h2>Register</h2>
+        <form (submit)="register()">
+        <input type="text" placeholder="Username" [(ngModel)]="registerData.username" name="username">
+        <input type="password" placeholder="Password" [(ngModel)]="registerData.password" name="password">
+        <input type="password" placeholder="Confirm Password" [(ngModel)]="registerData.confirmPassword" name="confirmPassword">
+        <!-- Include other registration fields as necessary -->
+        <button type="submit">Register</button>
+        </form>
+    </div>
+</div>
+  

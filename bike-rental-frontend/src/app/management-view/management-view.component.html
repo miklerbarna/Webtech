@@ -1,0 +1,41 @@
+<div *ngIf="!selectedStation" class="station-list">
+  <div class="navigation">
+    <button (click)="navigateToBikes()">Enter Bike View</button>
+  </div>
+  <div class="station-item" *ngFor="let station of bikeStations" (click)="selectStation(station)">
+    <div class="station-info">
+      <h3>{{ station.name }}</h3>
+      <p>{{ station.address }}</p>
+      <p>Coordinates: {{ station.latitude }}, {{ station.longitude }}</p>
+      <p>Capacity: {{ calculateTotalCapacity(station) }}</p>
+    </div>
+  </div>
+</div>
+
+<div *ngIf="selectedStation" class="station-details">
+    <button (click)="selectedStation = null">Close Details</button>
+    <h3>Station Details: {{ selectedStation.name }}</h3>
+    <p>Address: {{ selectedStation.address }}</p>
+    <p>Coordinates: {{ selectedStation.latitude }}, {{ selectedStation.longitude }}</p>
+    <div class="station-actions">
+      <button (click)="editStation(selectedStation)">Edit</button>
+      <button (click)="deleteStation(selectedStation.id)">Delete</button>
+    </div>
+    <div class="parking-places">
+      <h4>Parking Places:</h4>
+      <ul>
+        <li *ngFor="let place of selectedStation.parkingPlaces">
+          Place #{{ place.id }}: {{ place.type }} - Capacity: {{ place.capacity }}
+        </li>
+      </ul>
+    </div>
+    <div class="station-reviews">
+      <h4>Customer Reviews:</h4>
+      <div *ngFor="let review of selectedStation.reviews">
+        <p><strong>User {{ review.userId }}:</strong> {{ review.comment }} (Rating: {{ review.rating }}/5)</p>
+      </div>
+    </div>
+    
+</div>
+  
+  
