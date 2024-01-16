@@ -96,4 +96,146 @@ CREATE TABLE station_reviews (
     review_text TEXT
 );
 
---INSERT INTO table() VALUES(),(),()
+INSERT INTO bike_stations(name, address, city, latitude, longitude,places_taken, places_all) VALUES
+('Station A', '123 Main St', 'Cityville', 40.7128, -74.006, 10,	10),
+('Station B', '456 Elm St', 'Townsville', 35.6895, 139.6917, 10, 10),
+('Station C', '789 Oak St', 'Villageton', 51.5074, -0.1278,	10, 10);
+
+INSERT INTO bike_categories(name) VALUES
+('electric'),
+('child'),
+('mountain'),
+('universal');
+
+INSERT INTO parking_places(station_id,place_number,category_id) VALUES
+(1, 1, 4),
+(1, 2, 4),
+(1, 3, 4),
+(1, 4, 4),
+(1, 5, 4),
+(1, 6, 1),
+(1, 7, 1),
+(1, 8, 2),
+(1, 9, 2),
+(1, 10, 2),
+(2, 1, 4),
+(2, 2, 4),
+(2, 3, 4),
+(2, 4, 4),
+(2, 5, 3),
+(2, 6, 3),
+(2, 7, 3),
+(2, 8, 3),
+(2, 9, 1),
+(2, 10, 1),
+(3, 1, 4),
+(3, 2, 4),
+(3, 3, 4),
+(3, 4, 2),
+(3, 5, 2),
+(3, 6, 3),
+(3, 7, 3),
+(3, 8, 3),
+(3, 9, 3),
+(3, 10, 3);
+
+INSERT INTO bike_models(category_id, name, description, wheel_size, manufacturer, brakes_type) VALUES
+(1,	'Electric Model A',	'An electric bike with advanced features',	26,	'ElectroBike Co.',	'Disc'),
+(1,	'Electric Model B',	'A sleek and powerful electric bike',	28,	'EcoRide',	'Hydraulic'),
+(2,	'Kids Model X',	'A fun and colorful bike for children',	20,	'KidCycles',	'Caliper'),
+(2,	'Kids Model Y',	'Durable and safe bike for young riders',	16,	'TinyBikes',	'Coaster'),
+(3,	'Mountain Model 1',	'Designed for off-road adventures',	29,	'TrailBlazer',	'Disc'),
+(3,	'Mountain Model 2',	'Agile and sturdy mountain bike',	28,	'SummitCycles',	'Hydraulic');
+
+INSERT INTO bikes(model_id, unique_id, status) VALUES
+(3,	'MON1',	'parked'),
+(3,	'MON2',	'parked'),
+(3,	'MON4',	'parked'),
+(3,	'MON5',	'parked'),
+(3,	'MON6',	'parked'),
+(3,	'MON7',	'parked'),
+(3,	'MON8',	'parked'),
+(3,	'MON9',	'parked'),
+(3,	'MON10', 'parked'),
+(1,	'EL2',	'parked'),
+(1,	'EL3',	'parked'),
+(1,	'EL4',	'parked'),
+(1,	'EL5',	'parked'),
+(1,	'EL6',	'parked'),
+(1,	'EL7',	'parked'),
+(1,	'EL8',	'parked'),
+(1,	'EL9',	'parked'),
+(1,	'EL10',	'parked'),
+(2,	'CH1',	'parked'),
+(2,	'CH2',	'parked'),
+(2,	'CH3',	'parked'),
+(2,	'CH4',	'parked'),
+(2,	'CH5',	'parked'),
+(2,	'CH6',	'parked'),
+(2,	'CH7',	'parked'),
+(2,	'CH8',	'parked'),
+(2,	'CH9',	'parked'),
+(2,	'CH10',	'parked'),
+(1,	'EL1',	'booked'),
+(3,	'MON3',	'booked');
+
+INSERT INTO parking_places_bikes(parking_place_id, bike_id) VALUES
+(1, 1),
+(2, 11),
+(3, 12),
+(4, 13),
+(5, 14),
+(6, 15),
+(7, 16),
+(8, 21),
+(9, 22),
+(10, 23),
+(11, 17),
+(12, 18),
+(13, 24),
+(14, 25),
+(15, 2),
+(16, 3),
+(17, 4),
+(18, 5),
+(19, 19),
+(20, 20),
+(21, 26),
+(22, 27),
+(23, 28),
+(24, 29),
+(25, 30),
+(26, 6),
+(27, 7),
+(28, 8),
+(29, 9),
+(30, 10);
+
+
+INSERT INTO customers(email, password_hash, wallet_balance) VALUES
+('user1@example.com', 'password_hash_1', 0.00),
+('user2@example.com', 'password_hash_2', 0.00),
+('user3@example.com', 'password_hash_3', 0.00);
+
+
+INSERT INTO booked_tickets(customer_id, bike_id, start_time, end_time, ticket_price, station_id, status) VALUES
+(1,	11,	'2024-02-29 08:00:00',	'2024-02-29 10:00:00',	20.00,	1,	'bought'),
+(3,	3,	'2024-02-15 07:00:00',	'2024-02-15 09:00:00',	20.00,	2,	'bought');
+
+INSERT INTO model_reviews(model_id, customer_id, rating, review_text) VALUES
+(3,	1,	4,	'Lovely childs bike'),
+(3,	3,	5,	'Very safe bike'),
+(4,	2,	3,	'There is room for improvement..'),
+(2,	1,	2,	'Ran out of power soon'),
+(2,	3,	5,	'Is very comfortable'),
+(5,	2,	1,	'It broke!!'),
+(5,	3,	4,	'Very durable bike');
+
+
+INSERT INTO station_reviews(station_id, customer_id, rating, review_text) VALUES
+(1,	1,	5,	'Plenty of bikes available and easy to use'),
+(1,	2,	4,	'Convenient location'),
+(2,	3,	3,	'This station needs improvement'),
+(3,	2,	4,	'Bikes were in good shape, and the process was quick'),
+(3,	1,	3,	'Inefficient setup'),
+(3,	3,	2,	'Not impressed with this station');
