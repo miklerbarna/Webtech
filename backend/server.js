@@ -281,6 +281,7 @@ app.get("/model_reviews", (req,res) => {
 
 //API for updating database
 //STATION
+//#region 
 app.post("/station", (req, res) => {
     res.setHeader('Content-Type', 'text/html');
 
@@ -294,11 +295,39 @@ app.post("/station", (req, res) => {
             res.status(401).send("No row added");
         }
         else {
-            res.status(200).send("Row added");
+            // res.status(200).send("Row added");
+            query = `SELECT * from bike_stations WHERE name='${stat.name}'`;
+            pool.query(query).then(result => {
+                var station = result.rows[0];
+                console.log(station);
+                var places_done = 0;
+
+                for (const place of stat.places) {
+                    console.log(place);
+                    for (let index = 0; index < place.place_num; index++) {
+                        let query = `INSERT INTO parking_places(station_id,place_number,category_id)
+                                     VALUES (${station.station_id},${places_done},${place.category})` 
+                        console.log(query);
+                        pool.query(query).then(result => {
+                            if (result.rowCount == 0) {
+                                console.log("Failed to create parking place");
+                            }
+                            else {
+                                console.log(`Num: ${places_done} --parking place created`);
+                            }
+                        }).catch(err => {
+                            res.status(402).send("Error when accessing database: " + err);
+                        });
+                        places_done++;
+                    }
+                }
+                res.status(200).send("Station created");
+            })
         }
     }).catch(err => {
         res.status(402).send("Error when accessing database: " + err);
     });
+
 
 });
 
@@ -310,12 +339,21 @@ app.put("/station", (req, res) => {
     var stat_id = stat.station_id;
 
     for (const key in stat) {
-        if (key=="id") continue;
+        if (key=="station_id") continue;
         if (stat.hasOwnProperty(key)) {
             const value = stat[key];
-            var query = `UPDATE bike_stations
-                       SET ${key}=${value}
-                       WHERE station_id=${stat_id}`;
+            var query = `;`
+            if (typeof value === 'string') {
+                query = `UPDATE bike_stations
+                         SET ${key}='${value}'
+                         WHERE station_id=${stat_id}`;
+            }
+            else {
+                query = `UPDATE bike_stations
+                         SET ${key}=${value}
+                         WHERE station_id=${stat_id}`;
+            }
+            console.log(query);
             
             pool.query(query).then(results => {
                 if (results.rowCount == 0) {
@@ -330,7 +368,7 @@ app.put("/station", (req, res) => {
         }
     }
 
-    res.status(200).send("Update happened");
+    res.status(200).send("Updated");
 
 });
 
@@ -342,14 +380,52 @@ app.delete("/station", (req, res) => {
 
     var stat_id = stat.station_id;
 
-    query = `DELETE FROM bike_stations WHERE station_id=${stat_id}`;
+    //set the bikes' status that used the parking places to wild
+
+
+    var query = `DELETE FROM parking_places WHERE station_id=${stat_id}`;
 
     pool.query(query).then(results => {
         if (results.rowCount == 0) {
-            res.status(401).send("No row deleted");
+            res.status(401).send("No row deleted from parking_places");
         }
         else {
-            res.status(200).send("Delete happened");
+            let query = `DELETE FROM bike_stations WHERE station_id=${stat_id}`;
+            pool.query(query).then(results => {
+                if (results.rowCount == 0) {
+                    res.status(401).send("No row deleted from bike_stations");
+                }
+                else {
+                    res.status(200).send("Deleted");
+                }
+            }).catch(err => {
+                res.status(402).send("Error when accessing database: " + err);
+            });
+        }
+    }).catch(err => {
+        res.status(402).send("Error when accessing database: " + err);
+    });
+});
+
+//#endregion
+
+//BIKE CATEGORIES
+//#region 
+
+app.post("/category", (req, res) => {
+    res.setHeader('Content-Type', 'text/html');
+
+    category = req.body;
+    
+    var query = `INSERT INTO bike_categories(name)
+                 VALUES ('${category.name}')`
+
+    pool.query(query).then(results => {
+        if (results.rowCount == 0) {
+            res.status(401).send("No row added");
+        }
+        else {
+            res.status(200).send("Row added");
         }
     }).catch(err => {
         res.status(402).send("Error when accessing database: " + err);
@@ -357,19 +433,349 @@ app.delete("/station", (req, res) => {
 
 });
 
-
-//BIKE CATEGORIES
-app.post("/category", (req, res) => {
+app.put("/category", (req,res) => {
     res.setHeader('Content-Type', 'text/html');
 
+    category = req.body;
+
+    var query = `UPDATE bike_categories 
+                 SET name='${category.name}'
+                 WHERE category_id=${category.id} `
+
+    pool.query(query).then(results => {
+        if (results.rowCount == 0) {
+            res.status(401).send("No Update");
+        }
+        else {
+            res.status(200).send("Updated");
+        }
+    }).catch(err => {
+        res.status(402).send("Error when accessing database: " + err);
+    });
+});
+
+app.delete("/category", (req,res) => {
+    res.setHeader('Content-Type', 'text/html');
+
+    category = req.body;
+
+
+    //DELETE ALL MODELS FIRST, THE BIKES, THE PARKING_PLACE CONNECTIONS
+
+    var query = `DELETE FROM bike_categories 
+                 WHERE category_id=${category.id} `
+
+    pool.query(query).then(results => {
+        if (results.rowCount == 0) {
+            res.status(401).send("No Delete");
+        }
+        else {
+            res.status(200).send("Deleted row");
+        }
+    }).catch(err => {
+        res.status(402).send("Error when accessing database: " + err);
+    });
+});
+
+//#endregion
+
+//BIKE MODELS
+//#region 
+
+app.post("/model", (req,res) => {
+    res.setHeader('Content-Type', 'text/html');
+    
+    model = req.body;
+    
+    //must check if category exists
+    
+    let query = `INSERT INTO bike_models(category_id,name,description,wheel_size,manufacturer,brakes_type)
+    VALUES(${model.category_id}, '${model.name}','${model.description}', ${model.wheel_size}, '${model.manufacturer}', '${model.brakes_type}')`
+    
+    pool.query(query).then(results => {
+        if (results.rowCount == 0) {
+            res.status(401).send("No Creation");
+        }
+        else {
+            res.status(200).send("Created");
+        }
+    }).catch(err => {
+        res.status(402).send("Error when accessing database: " + err);
+    });
+    
+});
+
+app.put("/model", (req,res) => {
+    res.setHeader('Content-Type', 'text/html');
+    
+    var model = req.body;
+    
+    var model_id = model.model_id;
+    
+    for (const key in model) {
+        if (key=="model_id") continue;
+        if (model.hasOwnProperty(key)) {
+            const value = model[key];
+            var query = ``;
+            if(typeof value === 'string') {
+                query = `UPDATE bike_models
+                SET ${key}='${value}'
+                WHERE model_id=${model_id}`;
+                
+            }
+            else {
+                query = `UPDATE bike_models
+                SET ${key}=${value}
+                WHERE model_id=${model_id}`;
+            }
+            
+            console.log(query);
+            pool.query(query).then(results => {
+                if (results.rowCount == 0) {
+                    res.status(401).send("No Update");
+                }
+                else {
+                    console.log(`Updated ${key}`);
+                }
+            }).catch(err => {
+                res.status(402).send("Error when accessing database: " + err);
+            });
+        }
+    }
+    
+    res.status(200).send("Updated");
+    
+    
+});
+
+app.delete("/model", (req,res) => {
+    res.setHeader('Content-Type', 'text/html');
+    
+    //delete all bikes for the model
+    
+    var model_id = req.body.model_id; 
+    
+    
+    var query = `DELETE FROM bike_models WHERE model_id=${model_id}`;
+    
+    pool.query(query).then(results => {
+        if (results.rowCount == 0) {
+            res.status(401).send("No Delete");
+        }
+        else {
+            res.status(200).send("Deleted");
+        }
+    }).catch(err => {
+        res.status(402).send("Error when accessing database: " + err);
+    });
+    
+});
+
+//#endregion
+
+//BIKES
+//#region 
+
+app.post("/bike", (req,res) => {
+    res.setHeader('Content-Type', 'text/html');
+
+    var bike = req.body;
+    
+    var query = `INSERT INTO bikes(model_id,unique_id,status)
+                 VALUES(${bike.model_id},'${bike.unique_id}', 'wild')`;
+    
+    pool.query(query).then(results => {
+        if (results.rowCount == 0) {
+            res.status(401).send("No Creation");
+        }
+        else {
+            res.status(200).send("Created");
+        }
+    }).catch(err => {
+        res.status(402).send("Error when accessing database: " + err);
+    });
+    
 
 
 });
 
 
-// app.get("/bike/:id", (req,res) => {
+app.put("/bike", (req,res) => {
+    res.setHeader('Content-Type', 'text/html');
 
-// })
+    var bike = req.body;
+    
+    var bike_id = bike.bike_id;
+    
+    for (const key in bike) {
+        if (key=="bike_id") continue;
+        if (bike.hasOwnProperty(key)) {
+            const value = bike[key];
+            var query = ``;
+            if(typeof value === 'string') {
+                query = `UPDATE bikes
+                SET ${key}='${value}'
+                WHERE bike_id=${bike_id}`;
+                
+            }
+            else {
+                query = `UPDATE bikes
+                SET ${key}=${value}
+                WHERE bike_id=${bike_id}`;
+            }
+            
+            console.log(query);
+            pool.query(query).then(results => {
+                if (results.rowCount == 0) {
+                    res.status(401).send("No Update");
+                }
+                else {
+                    console.log(`Updated ${key}`);
+                }
+            }).catch(err => {
+                res.status(402).send("Error when accessing database: " + err);
+            });
+        }
+    }
+    
+    res.status(200).send("Updated");
+
+
+});
+
+app.delete("/bike", (req,res) => {
+    res.setHeader('Content-Type', 'text/html');
+
+    var bike_id = req.body.bike_id;
+
+    //Also delete them from parking_places_bikes connection table
+    //also update station properties
+    var query = `DELETE FROM bikes WHERE bike_id=${bike_id}`;
+    
+    pool.query(query).then(results => {
+        if (results.rowCount == 0) {
+            res.status(401).send("No Delete");
+        }
+        else {
+            res.status(200).send("Deleted");
+        }
+    }).catch(err => {
+        res.status(402).send("Error when accessing database: " + err);
+    });
+    
+});
+
+//#endregion
+
+//BIKE ASSIGN, DEASSIGN, REASSIGN
+//#region 
+
+app.put("/bikeassign", (req,res) => {
+    res.setHeader('Content-Type', 'text/html');
+
+    var data = req.body;
+
+    var query = `SELECT * 
+                 FROM parking_places_bikes
+                 WHERE parking_place_id=${data.new_place_id}`;
+    pool.query(query).then(results => {
+        console.log(results.rows);
+        if (results.rows.length == 0) { //place is free
+            let query = `INSERT INTO parking_places_bikes(parking_place_id, bike_id)
+                            VALUES(${data.new_place_id},${data.bike_id})`;
+            pool.query(query).then(result => {
+                if (result.rowCount == 0) {
+                    res.status(401).send("No Insert");
+                }
+                else {
+                    res.status(200).send("Reassign succesful");
+                }
+            })
+        }
+        else {
+            console.log(results.rows);
+            res.status(401).send("Parking place is used");
+        }
+    }).catch(err => {
+        res.status(402).send("Error when accessing database: " + err);
+    });
+    
+});
+
+app.put("/bikedeassign", (req,res) => {
+    res.setHeader('Content-Type', 'text/html');
+    
+    var data = req.body;
+    
+    var query = `DELETE FROM parking_places_bikes WHERE bike_id=${data.bike_id}`;
+    pool.query(query).then(results => {
+        if (results.rowCount == 0) {
+            res.status(401).send("No Delete");
+        }
+        else {
+            res.status(200).send("Deassigned");
+        }
+    }).catch(err => {
+        res.status(402).send("Error when accessing database: " + err);
+    });
+});
+
+
+
+
+app.put("/bikereassign", (req,res) => {
+    res.setHeader('Content-Type', 'text/html');
+    
+    var data = req.body;
+    
+    //also update station properties
+    
+    //delete row if it exists
+    //check if the desired station is free
+    //insert new row
+
+    var query = `DELETE FROM parking_places_bikes WHERE bike_id=${data.bike_id}`;
+    pool.query(query).then(results => {
+        if (results.rowCount == 0) {
+            res.status(401).send("No Delete");
+        }
+        else {
+            let query = `SELECT * 
+            FROM parking_places_bikes
+            WHERE parking_place_id=${data.new_place_id}`;
+            pool.query(query).then(results => {
+                console.log(results.rows);
+                if (results.rows.length == 0) {
+                    let query = `INSERT INTO parking_places_bikes(parking_place_id, bike_id)
+                                 VALUES(${data.new_place_id},${data.bike_id})`;
+                    pool.query(query).then(result => {
+                        if (result.rowCount == 0) {
+                            res.status(401).send("No Insert");
+                        }
+                        else {
+                            res.status(200).send("Reassign succesful");
+                        }
+                    })
+                }
+                else {
+                    console.log(results.rows);
+                    res.status(401).send("Parking place is used");
+                }
+            }).catch(err => {
+                res.status(402).send("Error when accessing database: " + err);
+            });
+        }
+    }).catch(err => {
+        res.status(402).send("Error when accessing database: " + err);
+    });
+    
+
+
+});
+
+
+
+//#endregion
 
 
 let port = 3000;

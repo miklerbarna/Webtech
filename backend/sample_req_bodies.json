@@ -1,0 +1,63 @@
+//for new station
+{
+    "name": "lorem",
+    "address": "loremstreet",
+    "city": "loremcity",
+    "latitude": 20,
+    "longitude": 20,
+    "places_all": 5,
+    "places": [
+        {
+            "category": 1,
+            "place_num": 3
+        },
+        {
+            "category": 2,
+            "place_num": 2
+        }
+    ]
+}
+
+//update station
+{
+    "station_id": 3,
+    "name": "asd",
+    "latitude": 40
+}
+
+
+//new model
+{
+    "category_id": 1,
+    "name": "lormodel",
+    "description": "loremipsuomdolorsitamet",
+    "wheel_size": 20,
+    "manufacturer": "Biketop",
+    "brakes_type": "goodxd"
+}
+
+//model update
+{
+    "model_id": 7,
+    "name": "lor2"
+}
+
+//new bike
+{
+    "model_id": 2,
+    "unique_id":"SA"
+}
+
+
+//bike update
+{
+    "bike_id": 31,
+    "model_id": 1,
+    "unique_id":"SAnew"
+}
+
+//bike reassign
+{
+    "bike_id": 30,
+    "new_place_id": 10
+}
