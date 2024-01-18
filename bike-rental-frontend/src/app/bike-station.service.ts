@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -43,10 +45,12 @@ export class BikeStationService {
     
   ];
 
-  constructor() { }
+  private apiUrl = 'http://localhost:3000/stations'; // Backend API URL
 
-  getBikeStations() {
-    return this.mockBikeStations;
+  constructor(private http: HttpClient) { }
+
+  getBikeStations(): Observable<any[]> {
+    return this.http.get<any[]>(this.apiUrl);
   }
 
   addBikeStation(newStation: any): void {

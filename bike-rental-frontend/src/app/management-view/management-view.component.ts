@@ -19,9 +19,13 @@ export class ManagementViewComponent implements OnInit {
     private bikeStationService: BikeStationService    
     ) { }
 
-  ngOnInit(): void {
-    this.bikeStations = this.bikeStationService.getBikeStations();
-  }
+    ngOnInit(): void {
+      this.bikeStationService.getBikeStations().subscribe(stations => {
+        this.bikeStations = stations;
+      }, error => {
+        console.error('Error fetching bike stations:', error);
+      });
+    }
 
   calculateTotalCapacity(station: any): number {
     return station.parkingPlaces.reduce((total: number, place: any) => total + place.capacity, 0);
@@ -32,8 +36,8 @@ export class ManagementViewComponent implements OnInit {
     if (confirmDeletion) {
       this.bikeStationService.deleteBikeStation(stationId);
       // Refresh the list or remove the item from the array
-      this.bikeStations = this.bikeStations.filter(station => station.id !== stationId);
-      if (this.selectedStation && this.selectedStation.id === stationId) {
+      this.bikeStations = this.bikeStations.filter(station => station.station_id !== stationId);
+      if (this.selectedStation && this.selectedStation.station_id === stationId) {
         this.selectedStation = null; // Close the details view if the deleted station was selected
       }
     }
@@ -54,7 +58,7 @@ export class ManagementViewComponent implements OnInit {
       };
       this.bikeStationService.updateBikeStation(updatedStation);
       // Update the list
-      const index = this.bikeStations.findIndex(s => s.id === station.id);
+      const index = this.bikeStations.findIndex(s => s.station_id === station.station_id);
       if (index !== -1) {
         this.bikeStations[index] = updatedStation;
       }

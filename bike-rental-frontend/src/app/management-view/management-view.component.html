@@ -7,7 +7,7 @@
       <h3>{{ station.name }}</h3>
       <p>{{ station.address }}</p>
       <p>Coordinates: {{ station.latitude }}, {{ station.longitude }}</p>
-      <p>Capacity: {{ calculateTotalCapacity(station) }}</p>
+      <p>Total / Occupied places: {{station.places_all}} / {{station.places_taken}}</p>
     </div>
   </div>
 </div>
@@ -21,18 +21,25 @@
       <button (click)="editStation(selectedStation)">Edit</button>
       <button (click)="deleteStation(selectedStation.id)">Delete</button>
     </div>
-    <div class="parking-places">
-      <h4>Parking Places:</h4>
+
+    <div class="parked-bikes">
+      <h4>Parked Bikes:</h4>
       <ul>
-        <li *ngFor="let place of selectedStation.parkingPlaces">
-          Place #{{ place.id }}: {{ place.type }} - Capacity: {{ place.capacity }}
+        <li *ngFor="let bike of selectedStation.bikes">
+          Place #{{ bike.parking_place_id }}: {{ bike.model_name }} #{{bike.bike_id}} - (Category: {{ bike.category_name }})
         </li>
       </ul>
     </div>
+
+    <div class="parking-places">
+      <h4>Parking Places:</h4>
+      <p>Total / Occupied places: {{selectedStation.places_all}} / {{selectedStation.places_taken}}</p>
+    </div>
+    
     <div class="station-reviews">
       <h4>Customer Reviews:</h4>
       <div *ngFor="let review of selectedStation.reviews">
-        <p><strong>User {{ review.userId }}:</strong> {{ review.comment }} (Rating: {{ review.rating }}/5)</p>
+        <p><strong>User {{ review.customer_id }}:</strong> {{ review.review_text }} (Rating: {{ review.rating }}/5)</p>
       </div>
     </div>
     
