@@ -222,7 +222,22 @@ app.get("/bikes", (req,res) => {
             res.status(401).send("No bikes retrieved");
         }
         else {
-            res.status(200).send(result.rows);
+            var response = result.rows;
+            var promises = []
+            for (const bike of response) {
+                let query = `SELECT customer_id,rating, review_text 
+                             FROM model_reviews
+                             WHERE model_id = ${bike['model_id']}`;
+                promises.push(pool.query(query).then(result => {
+                    bike['reviews'] = result.rows;
+                }).catch(err => {
+                    res.status(402).send("Error when accessing database " + err);
+                }));
+            }
+
+            Promise.all(promises).then(() => {
+                res.status(200).send(response);
+            });
         }
     }).catch(err => {
         res.status(402).send("Error when accessing database " + err);
@@ -240,17 +255,34 @@ app.get("/bike/:id", (req,res) => {
                  ON bike_models.category_id = bike_categories.category_id 
                  WHERE bike_id=${req.params.id}
                  ORDER BY bikes.bike_id`;
-                 
+    //also add reviews for the bike model in a list 
+    //also add where it is parked: station id, place number from parking_places
     pool.query(query).then(result => {
         if (result.rowCount == 0) {
             res.status(401).send("No bikes retrieved");
         }
         else {
-            res.status(200).send(result.rows);
+            var response = result.rows;
+            var promises = []
+            for (const bike of response) {
+                let query = `SELECT customer_id,rating, review_text 
+                             FROM model_reviews
+                             WHERE model_id = ${bike['model_id']}`;
+                promises.push(pool.query(query).then(result => {
+                    bike['reviews'] = result.rows;
+                }).catch(err => {
+                    res.status(402).send("Error when accessing database " + err);
+                }));
+            }
+
+            Promise.all(promises).then(() => {
+                res.status(200).send(response);
+            });
         }
     }).catch(err => {
         res.status(402).send("Error when accessing database " + err);
     });
+
 })
 
 
@@ -660,116 +692,6 @@ app.delete("/bike", (req,res) => {
     });
     
 });
-
-//#endregion
-
-//BIKE ASSIGN, DEASSIGN, REASSIGN
-//#region 
-
-app.put("/bikeassign", (req,res) => {
-    res.setHeader('Content-Type', 'text/html');
-
-    var data = req.body;
-
-    var query = `SELECT * 
-                 FROM parking_places_bikes
-                 WHERE parking_place_id=${data.new_place_id}`;
-    pool.query(query).then(results => {
-        console.log(results.rows);
-        if (results.rows.length == 0) { //place is free
-            let query = `INSERT INTO parking_places_bikes(parking_place_id, bike_id)
-                            VALUES(${data.new_place_id},${data.bike_id})`;
-            pool.query(query).then(result => {
-                if (result.rowCount == 0) {
-                    res.status(401).send("No Insert");
-                }
-                else {
-                    res.status(200).send("Reassign succesful");
-                }
-            })
-        }
-        else {
-            console.log(results.rows);
-            res.status(401).send("Parking place is used");
-        }
-    }).catch(err => {
-        res.status(402).send("Error when accessing database: " + err);
-    });
-    
-});
-
-app.put("/bikedeassign", (req,res) => {
-    res.setHeader('Content-Type', 'text/html');
-    
-    var data = req.body;
-    
-    var query = `DELETE FROM parking_places_bikes WHERE bike_id=${data.bike_id}`;
-    pool.query(query).then(results => {
-        if (results.rowCount == 0) {
-            res.status(401).send("No Delete");
-        }
-        else {
-            res.status(200).send("Deassigned");
-        }
-    }).catch(err => {
-        res.status(402).send("Error when accessing database: " + err);
-    });
-});
-
-
-
-
-app.put("/bikereassign", (req,res) => {
-    res.setHeader('Content-Type', 'text/html');
-    
-    var data = req.body;
-    
-    //also update station properties
-    
-    //delete row if it exists
-    //check if the desired station is free
-    //insert new row
-
-    var query = `DELETE FROM parking_places_bikes WHERE bike_id=${data.bike_id}`;
-    pool.query(query).then(results => {
-        if (results.rowCount == 0) {
-            res.status(401).send("No Delete");
-        }
-        else {
-            let query = `SELECT * 
-            FROM parking_places_bikes
-            WHERE parking_place_id=${data.new_place_id}`;
-            pool.query(query).then(results => {
-                console.log(results.rows);
-                if (results.rows.length == 0) {
-                    let query = `INSERT INTO parking_places_bikes(parking_place_id, bike_id)
-                                 VALUES(${data.new_place_id},${data.bike_id})`;
-                    pool.query(query).then(result => {
-                        if (result.rowCount == 0) {
-                            res.status(401).send("No Insert");
-                        }
-                        else {
-                            res.status(200).send("Reassign succesful");
-                        }
-                    })
-                }
-                else {
-                    console.log(results.rows);
-                    res.status(401).send("Parking place is used");
-                }
-            }).catch(err => {
-                res.status(402).send("Error when accessing database: " + err);
-            });
-        }
-    }).catch(err => {
-        res.status(402).send("Error when accessing database: " + err);
-    });
-    
-
-
-});
-
-
 
 //#endregion
 
