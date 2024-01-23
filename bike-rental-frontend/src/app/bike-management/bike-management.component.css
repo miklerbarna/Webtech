@@ -62,6 +62,11 @@
   margin-bottom: 10px;
 }
 
+.category-item::first-letter {
+  text-transform: uppercase;
+}
+
+
 .category-item button {
   /* Styles for category action buttons */
   margin-left: 10px;

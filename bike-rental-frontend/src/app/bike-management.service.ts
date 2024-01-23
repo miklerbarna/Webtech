@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -86,9 +88,19 @@ export class BikeManagementService {
   
   
 
-  constructor() { }
+    private getAllBikesURL = 'http://localhost:3000/bikes';
+    private getAllCategoriesURL = 'http://localhost:3000/categories';
+    private getAllModelsURL = 'http://localhost:3000/models';
 
-  getBikes() {
-    return this.mockBikes; // Assuming mockBikes is your array of bike data
-  }
+    constructor(private http: HttpClient) { }
+  
+    getBikes(): Observable<any[]> {
+      return this.http.get<any[]>(this.getAllBikesURL);
+    }
+    getCategories(): Observable<any[]> {
+      return this.http.get<any[]>(this.getAllCategoriesURL);
+    }
+    getModels(): Observable<any[]> {
+      return this.http.get<any[]>(this.getAllModelsURL);
+    }
 }

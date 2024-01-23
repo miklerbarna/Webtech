@@ -14,15 +14,11 @@ export class BikeManagementComponent implements OnInit {
   bikes: any[] = []; // Bikes as a property
   selectedBike: any = null;
   editingCategories = false;
-  categories = [
-    { name: 'mountain bike' },
-    { name: 'electric bike' },
-    { name: 'city bike' },
-    { name: 'children bike' },
-  ];
+  categories: any[] = [];
+  models: any[] = [];
 
   editingModels = false;
-  uniqueModels: any[] = []; // Array to store unique models
+  //uniqueModels: any[] = []; // Array to store unique models
 
   constructor(
       private router: Router, 
@@ -31,27 +27,72 @@ export class BikeManagementComponent implements OnInit {
 
   ngOnInit(): void {
     this.refreshBikes(); //Init and sort
-    this.initializeUniqueModels();
+    this.refreshCategories();
+    this.refreshModels();
   }
 
-  initializeUniqueModels(): void {
-    const allModels = this.bikes.map(bike => ({ category: bike.category, name: bike.model }));
-    this.uniqueModels = [...new Map(allModels.map(model => [model.name, model])).values()];
-  }
 
   refreshBikes(): void{
-    this.bikes = this.bikeService.getBikes()
-      .sort((a, b) => {
+    this.bikeService.getBikes().subscribe(bikes => {
+      this.bikes = bikes.sort((a, b) => {
         // Sort by category
-        if (a.category < b.category) return -1;
-        if (a.category > b.category) return 1;
+        if (a.category_name < b.category_name) return -1;
+        if (a.category_name > b.category_name) return 1;
 
         // If categories are equal, sort by model
-        if (a.model < b.model) return -1;
-        if (a.model > b.model) return 1;
+        if (a.model_name < b.model_name) return -1;
+        if (a.model_name > b.model_name) return 1;
 
         return 0;
-      });
+      });;
+    }, error => {
+      console.error('Error fetching bike stations:', error);
+    });
+      
+  }
+
+  refreshCategories(): void{
+    this.bikeService.getCategories().subscribe(categories => {
+      this.categories = categories.sort((a, b) => {
+        // Sort by category
+        if (a.name < b.name) return -1;
+        if (a.name >= b.name) return 1;
+        return 0;
+      });;
+    }, error => {
+      console.error('Error fetching bike categories:', error);
+    });
+      
+  }
+
+  refreshModels(): void{
+    this.bikeService.getModels().subscribe(models => {
+      this.models = models.sort((a, b) => {
+        // Sort by category
+        if (a.name < b.name) return -1;
+        if (a.name >= b.name) return 1;
+        return 0;
+      });;
+      this.assignCategoryNameToModels();
+    }, error => {
+      console.error('Error fetching bike models:', error);
+    });
+      
+  }
+
+  assignCategoryNameToModels(): void{
+    this.refreshCategories();
+    for (let index = 0; index < this.models.length; index++) {
+      const model = this.models[index];
+      const category = this.categories.find(cat => cat.category_id === model.category_id);
+      console.log(category);
+      if (category) {
+        model.category_name = category.name;
+      } else {
+        // Handle the case where a category is not found
+        model.category_name = 'Unknown'; // or any default value you prefer
+      }
+    }
   }
   
   selectBike(bike: any): void {
@@ -117,7 +158,7 @@ export class BikeManagementComponent implements OnInit {
     const newModelName = prompt('Enter name for the new model:');
 
     if (newCategory && newModelName) {
-      this.uniqueModels.push({ category: newCategory, name: newModelName });
+      this.models.push({ category: newCategory, name: newModelName });
     }
   }
 
@@ -126,9 +167,9 @@ export class BikeManagementComponent implements OnInit {
     const updatedModelName = prompt('Edit model name:', model.name);
 
     if (updatedCategory !== null && updatedModelName !== null) {
-      const index = this.uniqueModels.findIndex(m => m.name === model.name);
+      const index = this.models.findIndex(m => m.name === model.name);
       if (index !== -1) {
-        this.uniqueModels[index] = { ...model, category: updatedCategory, name: updatedModelName };
+        this.models[index] = { ...model, category: updatedCategory, name: updatedModelName };
       }
     }
   }
@@ -136,7 +177,7 @@ export class BikeManagementComponent implements OnInit {
   deleteModel(modelName: string): void {
     const confirmDeletion = confirm('Are you sure you want to delete this model?');
     if (confirmDeletion) {
-      this.uniqueModels = this.uniqueModels.filter(model => model.name !== modelName);
+      this.models = this.models.filter(model => model.name !== modelName);
     }
   }
 

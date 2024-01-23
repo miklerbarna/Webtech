@@ -3,22 +3,23 @@
   <button (click)="navigateToStations()" class="station-view-button">Enter Station View</button>
   <button (click)="editingCategories = true">Edit Categories</button>
   <button (click)="editingModels = true">Edit Models</button>
-    <div *ngFor="let bike of bikes" 
+  <div *ngFor="let bike of bikes" 
          class="bike-item" 
-         [ngClass]="{'mountain-bike': bike.category === 'mountain bike', 
-                     'electric-bike': bike.category === 'electric bike',
-                     'city-bike': bike.category === 'city bike',
-                     'children-bike': bike.category === 'children bike'}"
+         [ngClass]="{'mountain-bike': bike.category_name === 'mountain', 
+                     'electric-bike': bike.category_name === 'electric',
+                     'city-bike': bike.category_name === 'city',
+                     'children-bike': bike.category_name === 'child'}"
          (click)="selectBike(bike)">
   
       <div class="bike-details">
-        <span class="bike-id">ID: {{ bike.id }}</span>
-        <span class="bike-location">Station: {{ bike.stationId }}, Spot: {{ bike.parkingSpot }}</span>
-        <span class="bike-category">Category: {{ bike.category }}</span>
-        <span class="bike-model">Model: {{ bike.model }}</span>
+        <span class="bike-id">ID: {{ bike.bike_id }}</span>
+        <span class="bike-location">Station: {{ bike.station_id }}, Spot: {{ bike.place_number }}</span>
+        <span class="bike-category">Category: {{ bike.category_name }}</span>
+        <span class="bike-model">Model: {{ bike.model_name }}</span>
+        <span class="bike-status">Current Status: {{ bike.status }}</span>
       </div>
-    </div>
   </div>
+</div>
 
 
 <!-- Category Editing View -->
@@ -26,10 +27,10 @@
   <button (click)="editingCategories = false">Back to Bikes</button>
   <button (click)="addCategory()">Add Category</button>
 
-  <div *ngFor="let category of categories" class="category-item" [ngClass]="{'mountain-bike': category.name === 'mountain bike', 
-  'electric-bike': category.name === 'electric bike',
-  'city-bike': category.name === 'city bike',
-  'children-bike': category.name === 'children bike'}">
+  <div *ngFor="let category of categories" class="category-item" [ngClass]="{'mountain-bike': category.name === 'mountain', 
+  'electric-bike': category.name === 'electric',
+  'city-bike': category.name === 'city',
+  'children-bike': category.name === 'child'}">
     {{ category.name }}
     <button (click)="editCategory(category)">Edit</button>
     <button (click)="deleteCategory(category.name)">Delete</button>
@@ -41,13 +42,13 @@
   <button (click)="editingModels = false">Back to Bikes</button>
   <button (click)="addModel()">Add Model</button>
 
-  <div *ngFor="let model of uniqueModels" class="model-item" 
-  [ngClass]="{'mountain-bike': model.category === 'mountain bike', 
-  'electric-bike': model.category === 'electric bike',
-  'city-bike': model.category === 'city bike',
-  'children-bike': model.category === 'children bike'}">
+  <div *ngFor="let model of models" class="model-item" 
+  [ngClass]="{'mountain-bike': model.category_name === 'mountain', 
+  'electric-bike': model.category_name === 'electric',
+  'city-bike': model.category_name === 'city',
+  'children-bike': model.category_name === 'child'}">
     <div class="model-details">
-      <span class="bike-category">Category: {{ model.category }}</span>
+      <span class="bike-category">Category: {{ model.category_name }}</span>
       <span class="bike-model">Model: {{ model.name }}</span>
     </div>
     <button (click)="editModel(model)">Edit</button>
@@ -58,11 +59,12 @@
 <!-- Individual Bike Editing View -->
 <div *ngIf="selectedBike" class="bike-details-view">
   <button (click)="selectedBike = null">Close Details</button>
-    <h3>Bike Details: {{ selectedBike.model }} (ID: {{ selectedBike.id }})</h3>
-    <p>Category: {{ selectedBike.category }}</p>
-    <p>Model: {{ selectedBike.model }}</p>
-    <p>Current Station: {{ selectedBike.stationId }}</p>
-    <p>Parking Spot: {{ selectedBike.parkingSpot }}</p>
+    <h3>Bike Details: (ID: {{ selectedBike.bike_id }})</h3>
+    <p>Category: {{ selectedBike.category_name }}</p>
+    <p>Model: {{ selectedBike.model_name }}</p>
+    <p>Current Status: {{ selectedBike.status }}</p>
+    <p>Current Station: {{ selectedBike.station_id }}</p>
+    <p>Parking Spot: {{ selectedBike.place_number }}</p>
     <div class="bike-reviews">
         <h4>Customer Reviews:</h4>
         <div *ngFor="let review of selectedBike.reviews">
@@ -70,7 +72,7 @@
         </div>
     </div>
     <button (click)="editBike(selectedBike)">Edit Bike</button>
-    <button (click)="deleteBike(selectedBike.id)">Delete Bike</button>
+    <button (click)="deleteBike(selectedBike.bike_id)">Delete Bike</button>
     
 </div>
   
