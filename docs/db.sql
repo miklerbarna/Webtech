@@ -44,19 +44,18 @@ CREATE TABLE bikes (
     bike_id SERIAL PRIMARY KEY,
     model_id INTEGER REFERENCES bike_models(model_id),
     unique_id VARCHAR(255) UNIQUE NOT NULL,
-    status VARCHAR(50) NOT NULL --can be under wild/use/parked/booked
+    station_id INTEGER REFERENCES bike_stations(station_id),
+    place_id INTEGER REFERENCES parking_places(place_id),
+    place_number INTEGER,
+    status VARCHAR(50) NOT NULL, --can be under wild/use/parked/booked
+    CONSTRAINT fk_station FOREIGN KEY (station_id) REFERENCES bike_stations(station_id) ON DELETE SET NULL,
+    CONSTRAINT fk_place FOREIGN KEY (place_id) REFERENCES parking_places(place_id) ON DELETE SET NULL
+
 );
 --wild: it has not been assigned to a station either because its a new bike or because the station is destroyed
 --use: It is currently used
 --booked: it is at a station but a ticket is already booked for it
 --parked: it is at t place in a station and is free to book/use
-
--- Connecting table to represent the association between bike stations and bikes
-CREATE TABLE parking_places_bikes (
-    parking_place_id INTEGER REFERENCES parking_places(place_id),
-    bike_id INTEGER REFERENCES bikes(bike_id),
-    PRIMARY KEY (parking_place_id, bike_id)
-);
 
 -- Table to store information about customer accounts
 CREATE TABLE customers (
@@ -147,70 +146,37 @@ INSERT INTO bike_models(category_id, name, description, wheel_size, manufacturer
 (3,	'Mountain Model 1',	'Designed for off-road adventures',	29,	'TrailBlazer',	'Disc'),
 (3,	'Mountain Model 2',	'Agile and sturdy mountain bike',	28,	'SummitCycles',	'Hydraulic');
 
-INSERT INTO bikes(model_id, unique_id, status) VALUES
-(5,	'MON1',	'parked'),
-(5,	'MON2',	'parked'),
-(5,	'MON3',	'booked'),
-(5,	'MON4',	'parked'),
-(5,	'MON5',	'parked'),
-(6,	'MON6',	'parked'),
-(6,	'MON7',	'parked'),
-(6,	'MON8',	'parked'),
-(6,	'MON9',	'parked'),
-(6,	'MON10', 'parked'),
-(1,	'EL1',	'booked'),
-(1,	'EL2',	'parked'),
-(1,	'EL3',	'parked'),
-(1,	'EL4',	'parked'),
-(1,	'EL5',	'parked'),
-(2,	'EL6',	'parked'),
-(2,	'EL7',	'parked'),
-(2,	'EL8',	'parked'),
-(2,	'EL9',	'parked'),
-(2,	'EL10',	'parked'),
-(3,	'CH1',	'parked'),
-(3,	'CH2',	'parked'),
-(3,	'CH3',	'parked'),
-(3,	'CH4',	'parked'),
-(3,	'CH5',	'parked'),
-(4,	'CH6',	'parked'),
-(4,	'CH7',	'parked'),
-(4,	'CH8',	'parked'),
-(4,	'CH9',	'parked'),
-(4,	'CH10',	'parked');
-
-INSERT INTO parking_places_bikes(parking_place_id, bike_id) VALUES
-(1, 1),
-(2, 11),
-(3, 12),
-(4, 13),
-(5, 14),
-(6, 15),
-(7, 16),
-(8, 21),
-(9, 22),
-(10, 23),
-(11, 17),
-(12, 18),
-(13, 24),
-(14, 25),
-(15, 2),
-(16, 3),
-(17, 4),
-(18, 5),
-(19, 19),
-(20, 20),
-(21, 26),
-(22, 27),
-(23, 28),
-(24, 29),
-(25, 30),
-(26, 6),
-(27, 7),
-(28, 8),
-(29, 9),
-(30, 10);
-
+INSERT INTO bikes(model_id, unique_id, station_id, place_id, place_number, status) VALUES
+(5,	'MON1',	1,1,1, 'parked'),
+(5,	'MON2',	2,15,5, 'parked'),
+(5,	'MON3',	2,16,6, 'booked'),
+(5,	'MON4',	2,17,7, 'parked'),
+(5,	'MON5',	2,18,8, 'parked'),
+(6,	'MON6',	3,26,6, 'parked'),
+(6,	'MON7',	3,27,7, 'parked'),
+(6,	'MON8',	3,28,8, 'parked'),
+(6,	'MON9',	3,29,9, 'parked'),
+(6,	'MON10', 3,30,10, 'parked'),
+(1,	'EL1',	1,2,2, 'booked'),
+(1,	'EL2',	1,3,3, 'parked'),
+(1,	'EL3',	1,4,4, 'parked'),
+(1,	'EL4',	1,5,5, 'parked'),
+(1,	'EL5',	1,6,6, 'parked'),
+(2,	'EL6',	1,7,7, 'parked'),
+(2,	'EL7',	2,11,1, 'parked'),
+(2,	'EL8',	2,12,2, 'parked'),
+(2,	'EL9',	2,19,9, 'parked'),
+(2,	'EL10',	2,20,10, 'parked'),
+(3,	'CH1',	1,8,8, 'parked'),
+(3,	'CH2',	1,9,9, 'parked'),
+(3,	'CH3',	1,10,10, 'parked'),
+(3,	'CH4',	2,13,3, 'parked'),
+(3,	'CH5',	2,14,4, 'parked'),
+(4,	'CH6',	3,21,1, 'parked'),
+(4,	'CH7',	3,22,2, 'parked'),
+(4,	'CH8',	3,23,3, 'parked'),
+(4,	'CH9',	3,24,4, 'parked'),
+(4,	'CH10',	3,25,5, 'parked');
 
 INSERT INTO customers(email, password_hash, wallet_balance) VALUES
 ('user1@example.com', 'password_hash_1', 0.00),
