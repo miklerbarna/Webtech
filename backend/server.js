@@ -463,10 +463,11 @@ app.post("/category", (req, res) => {
 });
 
 app.put("/category", (req,res) => {
+    console.log(req.body);
     res.setHeader('Content-Type', 'text/html');
 
     category = req.body;
-
+    
     var query = `UPDATE bike_categories 
                  SET name='${category.name}'
                  WHERE category_id=${category.id} `
@@ -479,6 +480,7 @@ app.put("/category", (req,res) => {
             res.status(200).send("Updated");
         }
     }).catch(err => {
+        console.error("Error when accessing database: " + err);
         res.status(402).send("Error when accessing database: " + err);
     });
 });
@@ -502,6 +504,7 @@ app.delete("/category", (req,res) => {
             res.status(200).send("Deleted row");
         }
     }).catch(err => {
+        console.error("Error when accessing database: " + err);
         res.status(402).send("Error when accessing database: " + err);
     });
 });
@@ -535,6 +538,7 @@ app.post("/model", (req,res) => {
 });
 
 app.put("/model", (req,res) => {
+    console.log("Adatok: " + req.body.model_id + " " + req.body.name);
     res.setHeader('Content-Type', 'text/html');
     
     var model = req.body;
@@ -595,6 +599,7 @@ app.delete("/model", (req,res) => {
             res.status(200).send("Deleted");
         }
     }).catch(err => {
+        console.error("Error when accessing database: " + err);
         res.status(402).send("Error when accessing database: " + err);
     });
     

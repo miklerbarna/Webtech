@@ -12,7 +12,7 @@
          (click)="selectBike(bike)">
   
       <div class="bike-details">
-        <span class="bike-id">ID: {{ bike.bike_id }}</span>
+        <span class="bike-id">ID: #{{ bike.bike_id }}</span>
         <span class="bike-location">Station: {{ bike.station_id }}, Spot: {{ bike.place_number }}</span>
         <span class="bike-category">Category: {{ bike.category_name }}</span>
         <span class="bike-model">Model: {{ bike.model_name }}</span>
@@ -31,9 +31,12 @@
   'electric-bike': category.name === 'electric',
   'city-bike': category.name === 'city',
   'children-bike': category.name === 'child'}">
-    {{ category.name }}
+    <div class="category-details">
+      <span class="category-name">Name: {{ category.name }}</span>
+      <span class="category-id">ID: #{{ category.category_id }}</span>      
+    </div>
     <button (click)="editCategory(category)">Edit</button>
-    <button (click)="deleteCategory(category.name)">Delete</button>
+    <button (click)="deleteCategory(category.category_id)">Delete</button>
   </div>
 </div>
   
@@ -48,27 +51,44 @@
   'city-bike': model.category_name === 'city',
   'children-bike': model.category_name === 'child'}">
     <div class="model-details">
+      <span class="bike-model-name">Model name: {{ model.name }}</span>
+      <span class="bike-model-id">Model ID: #{{ model.model_id }}</span>
       <span class="bike-category">Category: {{ model.category_name }}</span>
-      <span class="bike-model">Model: {{ model.name }}</span>
+      <span class="bike-manufacturer">Manufacturer: {{ model.manufacturer }}</span>
+      <span class="bike-wheel-size">Wheel Size: {{ model.wheel_size }}</span>
+      <span class="bike-brakes">Brakes type: {{ model.brakes_type }}</span>
+      <span class="bike-description">Description: {{ model.description }}</span>
+      
     </div>
     <button (click)="editModel(model)">Edit</button>
-    <button (click)="deleteModel(model.name)">Delete</button>
+    <button (click)="deleteModel(model.model_id)">Delete</button>
   </div>
 </div>
 
 <!-- Individual Bike Editing View -->
 <div *ngIf="selectedBike" class="bike-details-view">
   <button (click)="selectedBike = null">Close Details</button>
-    <h3>Bike Details: (ID: {{ selectedBike.bike_id }})</h3>
+    <h3>Bike Details: (ID: #{{ selectedBike.bike_id }})</h3>
     <p>Category: {{ selectedBike.category_name }}</p>
     <p>Model: {{ selectedBike.model_name }}</p>
     <p>Current Status: {{ selectedBike.status }}</p>
-    <p>Current Station: {{ selectedBike.station_id }}</p>
-    <p>Parking Spot: {{ selectedBike.place_number }}</p>
+    <p>Current Station and Spot: {{ selectedBike.station_id }} -- {{ selectedBike.place_number }}</p>
+    <h4>Model details: </h4>
+    <div class="bike-model-details">
+      <span class="bike-model-name">Model name: {{ selectedBike.model_name }}</span>
+      <span class="bike-model-id">Model ID: #{{ selectedBike.model_id }}</span>
+      <span class="bike-category">Category: {{ selectedBike.category_name }}</span>
+      <span class="bike-manufacturer">Manufacturer: {{ selectedBike.manufacturer }}</span>
+      <span class="bike-wheel-size">Wheel Size: {{ selectedBike.wheel_size }}</span>
+      <span class="bike-brakes">Brakes type: {{ selectedBike.brakes_type }}</span>
+      <span class="bike-description">Description: {{ selectedBike.description }}</span>
+      
+    </div>
+    
     <div class="bike-reviews">
         <h4>Customer Reviews:</h4>
         <div *ngFor="let review of selectedBike.reviews">
-        <p><strong>User {{ review.userId }}:</strong> {{ review.comment }} (Rating: {{ review.rating }}/5)</p>
+        <p><strong>User #{{ review.customer_id }}:</strong> {{ review.review_text }} (Rating: {{ review.rating }}/5)</p>
         </div>
     </div>
     <button (click)="editBike(selectedBike)">Edit Bike</button>

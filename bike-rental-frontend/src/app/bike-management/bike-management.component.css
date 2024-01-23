@@ -10,6 +10,11 @@
   flex-direction: column;
 }
 
+.bike-model-details {
+  display: flex;
+  flex-direction: column;
+}
+
 .mountain-bike {
   background-color: #fdedb3; /* Khaki for mountain bikes */
 }
@@ -54,6 +59,15 @@
 }
 
 .bike-id{
+  font-weight: bold;
+}
+
+.category-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.category-details .category-name{
   font-weight: bold;
 }
 
@@ -113,6 +127,10 @@ button {
 .model-details {
   display: flex;
   flex-direction: column;
+}
+
+.model-details .bike-model-name{
+  font-weight: bold;
 }
 
 .station-view-button{

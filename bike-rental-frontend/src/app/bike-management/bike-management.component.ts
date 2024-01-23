@@ -33,6 +33,7 @@ export class BikeManagementComponent implements OnInit {
 
 
   refreshBikes(): void{
+    this.bikes = [];
     this.bikeService.getBikes().subscribe(bikes => {
       this.bikes = bikes.sort((a, b) => {
         // Sort by category
@@ -122,16 +123,25 @@ export class BikeManagementComponent implements OnInit {
 
   deleteBike(bikeId: string): void {
     const confirmDeletion = confirm('Are you sure you want to delete this bike?');
+    
     if (confirmDeletion) {
-      // Remove the bike from the list
-      this.bikes = this.bikes.filter(bike => bike.id !== bikeId);
+      console.log("Deleting bike: " + bikeId);
+      this.bikeService.deleteBike(bikeId).subscribe(
+        response => {
+          console.log('Bike deleted successfully', response);
+          this.selectedBike = null;
+          this.refreshBikes();
+        },
+        error => {
+          console.error('Error deleting bike', error);
+          this.selectedBike = null;
+          this.refreshBikes();
+        }
+      );
 
-      // Close the detailed view if the deleted bike was selected
-      if (this.selectedBike && this.selectedBike.id === bikeId) {
-        this.selectedBike = null;
-      }
+      
     }
-    this.refreshBikes();
+    
   }
 
   /* ------------Category funtions------------------*/
@@ -141,13 +151,39 @@ export class BikeManagementComponent implements OnInit {
   }
 
   editCategory(category: any): void {
-    // Implement editing a category
+    const newCategoryName = prompt('Enter new name for Category:', category.name.toString());
+    if(newCategoryName){
+      this.bikeService.editCategory(category.category_id, newCategoryName).subscribe(
+        response => {
+          console.log('Category edited successfully', response);
+          this.refreshCategories();
+          this.refreshModels();
+          this.refreshBikes();
+        },
+        error => {
+          console.error('Category editing error: ', error);
+          this.refreshCategories();
+          this.refreshModels();
+          this.refreshBikes();
+        }
+      );
+    }
+      
   }
 
-  deleteCategory(categoryName: string): void {
-    const confirmDeletion = confirm('Are you sure you want to delete this category?');
+  deleteCategory(categoryID: string): void {
+    const confirmDeletion = confirm('Are you sure you want to delete this category? ' + categoryID);
     if (confirmDeletion) {
-      this.categories = this.categories.filter(cat => cat.name !== categoryName);
+      this.bikeService.deleteCategory(categoryID).subscribe(
+        response => {
+          console.log('Category deleted successfully', response);
+          this.refreshCategories();
+        },
+        error => {
+          console.error('Category deleting bike', error);
+          this.refreshCategories();
+        }
+      );
     }    
   }
 
@@ -163,21 +199,53 @@ export class BikeManagementComponent implements OnInit {
   }
 
   editModel(model: any): void {
-    const updatedCategory = prompt('Edit category:', model.category);
-    const updatedModelName = prompt('Edit model name:', model.name);
+    let updatedModel = { ...model }; // Clone the model object to avoid direct modifications
 
-    if (updatedCategory !== null && updatedModelName !== null) {
-      const index = this.models.findIndex(m => m.name === model.name);
-      if (index !== -1) {
-        this.models[index] = { ...model, category: updatedCategory, name: updatedModelName };
+    // Define the properties to be edited
+    const propertiesToEdit = ['name', 'category_id', 'manufacturer', 'wheel_size', 'brakes_type', 'description'];
+
+    propertiesToEdit.forEach(prop => {
+      const currentValue = model[prop];
+      const newValue = prompt(`Edit ${prop}:`, currentValue);
+
+      if (newValue !== null && newValue !== currentValue) {
+        updatedModel[prop] = newValue;
       }
+    });
+
+    // Check if the model has been updated
+    if (JSON.stringify(model) !== JSON.stringify(updatedModel)) {
+      
+      // Call service to update the model on the backend
+      this.bikeService.editModel(updatedModel).subscribe(
+        response => {
+          console.log('Model updated successfully', response);
+          this.refreshModels();
+          this.refreshBikes();
+        },
+        error => {
+          console.error('Error updating model', error);
+          this.refreshModels();
+          this.refreshBikes();
+        }
+      );
     }
+    
   }
 
-  deleteModel(modelName: string): void {
+  deleteModel(modelID: string): void {
     const confirmDeletion = confirm('Are you sure you want to delete this model?');
     if (confirmDeletion) {
-      this.models = this.models.filter(model => model.name !== modelName);
+      this.bikeService.deleteModel(modelID).subscribe(
+        response => {
+          console.log('Model deleted successfully', response);
+          this.refreshModels();
+        },
+        error => {
+          console.error('Model deleting bike', error);
+          this.refreshModels();
+        }
+      );
     }
   }
 
