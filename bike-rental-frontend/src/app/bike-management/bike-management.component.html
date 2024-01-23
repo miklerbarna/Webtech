@@ -1,9 +1,11 @@
 <!-- List of Bikes View -->
 <div *ngIf="!selectedBike && !editingCategories && !editingModels" class="bike-list">
+  <div class="buttons-container">
   <button (click)="navigateToStations()" class="station-view-button">Enter Station View</button>
   <button (click)="editingCategories = true">Edit Categories</button>
   <button (click)="editingModels = true">Edit Models</button>
-  <button (click)="addBike()">Create New Bike</button>
+  <button (click)="addBike()" class="create-new-bike-button">Create New Bike</button>
+</div>
   <div *ngFor="let bike of bikes" 
          class="bike-item" 
          [ngClass]="{'mountain-bike': bike.category_name === 'mountain', 

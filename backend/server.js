@@ -345,6 +345,7 @@ app.post("/station", (req, res) => {
                                 console.log(`Num: ${places_done} --parking place created`);
                             }
                         }).catch(err => {
+                            console.error("Error when accessing database: " + err);
                             res.status(402).send("Error when accessing database: " + err);
                         });
                         places_done++;
@@ -354,6 +355,7 @@ app.post("/station", (req, res) => {
             })
         }
     }).catch(err => {
+        console.error("Error when accessing database: " + err);
         res.status(402).send("Error when accessing database: " + err);
     });
 
@@ -428,10 +430,12 @@ app.delete("/station", (req, res) => {
                     res.status(200).send("Deleted");
                 }
             }).catch(err => {
+                console.error("Error when accessing database: " + err);
                 res.status(402).send("Error when accessing database: " + err);
             });
         }
     }).catch(err => {
+        console.error("Error when accessing database: " + err);
         res.status(402).send("Error when accessing database: " + err);
     });
 });
