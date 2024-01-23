@@ -32,24 +32,26 @@ export class BikeManagementComponent implements OnInit {
   }
 
 
-  refreshBikes(): void{
-    this.bikes = [];
-    this.bikeService.getBikes().subscribe(bikes => {
-      this.bikes = bikes.sort((a, b) => {
-        // Sort by category
-        if (a.category_name < b.category_name) return -1;
-        if (a.category_name > b.category_name) return 1;
+  refreshBikes(): Promise<void>{
+    return new Promise((resolve, reject) => {
+      this.bikeService.getBikes().subscribe(bikes => {
+        this.bikes = bikes.sort((a, b) => {
+          // Sort by category
+          if (a.category_name < b.category_name) return -1;
+          if (a.category_name > b.category_name) return 1;
 
-        // If categories are equal, sort by model
-        if (a.model_name < b.model_name) return -1;
-        if (a.model_name > b.model_name) return 1;
+          // If categories are equal, sort by model
+          if (a.model_name < b.model_name) return -1;
+          if (a.model_name > b.model_name) return 1;
 
-        return 0;
-      });;
-    }, error => {
-      console.error('Error fetching bike stations:', error);
+          return 0;
+        });
+        resolve();;
+      }, error => {
+        console.error('Error fetching bike stations:', error);
+        reject(error);
+      });
     });
-      
   }
 
   refreshCategories(): void{
@@ -81,6 +83,25 @@ export class BikeManagementComponent implements OnInit {
       
   }
 
+  refreshSelectedBike(selectedBike: any): void{
+    if (selectedBike && selectedBike.bike_id) {
+      console.log(this.bikes);
+      const bikeToUpdate = this.bikes.find(bike => bike.bike_id === selectedBike.bike_id);
+      
+      if (bikeToUpdate) {
+        this.selectedBike = { ...bikeToUpdate };
+      } else {
+        console.log(`Bike with ID ${selectedBike.bike_id} not found.`);
+        // Handle the case where the bike is not found, for example:
+        // this.selectedBike = null;
+      }
+    } else {
+      console.log("No bike selected or selected bike has no ID.");
+      // Handle the case where there is no selected bike or no ID, for example:
+      // this.selectedBike = null;
+    }
+  }
+
   assignCategoryNameToModels(): void{
     this.refreshCategories();
     for (let index = 0; index < this.models.length; index++) {
@@ -100,25 +121,68 @@ export class BikeManagementComponent implements OnInit {
     this.selectedBike = bike;
   }
 
-  editBike(bike: any): void {
-    const newStationId = prompt('Enter new Station ID:', bike.stationId.toString());
-    const newParkingSpot = prompt('Enter new Parking Spot:', bike.parkingSpot.toString());
+  addBike(): void {
+    let newBike: {[key: string]: any} = {}; //Legyen egy üres szótár
 
-    if (newStationId !== null && newParkingSpot !== null) {
-      // Update the bike details
-      bike.stationId = parseInt(newStationId, 10);
-      bike.parkingSpot = parseInt(newParkingSpot, 10);
+    // Define the properties to be edited
+    const propertiesToEdit = ['model_id', 'unique_id'];
 
-      // Update the list of bikes
-      const index = this.bikes.findIndex(b => b.id === bike.id);
-      if (index !== -1) {
-        this.bikes[index] = bike;
+    propertiesToEdit.forEach(prop => {
+      const newValue = prompt(`Enter ${prop} for the new bike:`);
+      if (newValue !== null) {
+        newBike[prop] = newValue;
       }
+    });
 
-      // Refresh the selected bike details
-      this.selectedBike = {...bike};
+    // Call service to update the model on the backend
+    this.bikeService.addBike(newBike).subscribe(
+      response => {
+        console.log('Bike added successfully', response);
+        this.refreshBikes();
+      },
+      error => {
+        console.error('Error adding Bike', error);
+        this.refreshBikes();
+      }
+    );
+    
+  }
+
+  editBike(selectedBike: any): void {
+    let updatedModel: {[key: string]: any} = {}; //Legyen egy üres szótár
+    updatedModel["bike_id"] = selectedBike.bike_id;
+    // Define the properties to be edited
+    const propertiesToEdit = ['status', 'station_id', 'place_number'];
+
+    propertiesToEdit.forEach(prop => {
+      const currentValue = selectedBike[prop];
+      const newValue = prompt(`Edit ${prop}:`, currentValue);
+
+      if (newValue !== null && newValue !== currentValue) {
+        updatedModel[prop] = newValue;
+      }
+    });
+
+    // Check if the model has been updated
+    if (JSON.stringify(selectedBike) !== JSON.stringify(updatedModel)) {
+      
+      // Call service to update the model on the backend
+      this.bikeService.editBike(updatedModel).subscribe(
+        response => {
+          console.log('Bike updated successfully', response);
+          this.refreshBikes().then(() => {
+            this.refreshSelectedBike(selectedBike);
+          });
+        },
+        error => {
+          console.error('Error updating Bike', error);
+          this.refreshBikes().then(() => {
+            this.refreshSelectedBike(selectedBike);
+          });
+        }
+      );
     }
-    this.refreshBikes();
+    
   }
 
   deleteBike(bikeId: string): void {
@@ -147,7 +211,19 @@ export class BikeManagementComponent implements OnInit {
   /* ------------Category funtions------------------*/
 
   addCategory(): void {
-    // Implement adding a new category
+    const newCategoryName = prompt('Enter new name for Category:');
+    if (newCategoryName) {
+      this.bikeService.addCategory(newCategoryName).subscribe(
+        response => {
+          console.log('Category added successfully', response);
+          this.refreshCategories();
+        },
+        error => {
+          console.error('Error in adding new Category', error);
+          this.refreshCategories();
+        }
+      );
+    } 
   }
 
   editCategory(category: any): void {
@@ -187,15 +263,34 @@ export class BikeManagementComponent implements OnInit {
     }    
   }
 
+
   /* ------------Model funtions------------------*/
 
   addModel(): void {
-    const newCategory = prompt('Enter category for the new model:');
-    const newModelName = prompt('Enter name for the new model:');
+    let newModel: {[key: string]: any} = {}; //Legyen egy üres szótár
 
-    if (newCategory && newModelName) {
-      this.models.push({ category: newCategory, name: newModelName });
-    }
+    // Define the properties to be edited
+    const propertiesToAdd = ['category_id', 'name', 'description', 'wheel_size', 'manufacturer', 'brakes_type'];
+
+    propertiesToAdd.forEach(prop => {
+      const newValue = prompt(`Enter ${prop} for the new Model:`);
+      if (newValue !== null) {
+        newModel[prop] = newValue;
+      }
+    });
+
+    // Call service to update the model on the backend
+    this.bikeService.addModel(newModel).subscribe(
+      response => {
+        console.log('Model added successfully', response);
+        this.refreshModels();
+      },
+      error => {
+        console.error('Error adding Model', error);
+        this.refreshModels();
+      }
+    );
+    
   }
 
   editModel(model: any): void {

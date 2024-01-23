@@ -443,8 +443,9 @@ app.delete("/station", (req, res) => {
 
 app.post("/category", (req, res) => {
     res.setHeader('Content-Type', 'text/html');
-
+    
     category = req.body;
+    console.log(category.name);
     
     var query = `INSERT INTO bike_categories(name)
                  VALUES ('${category.name}')`
@@ -520,6 +521,7 @@ app.post("/model", (req,res) => {
     model = req.body;
     
     //must check if category exists
+    console.log("Adding Model: " + model.name);
     
     let query = `INSERT INTO bike_models(category_id,name,description,wheel_size,manufacturer,brakes_type)
     VALUES(${model.category_id}, '${model.name}','${model.description}', ${model.wheel_size}, '${model.manufacturer}', '${model.brakes_type}')`

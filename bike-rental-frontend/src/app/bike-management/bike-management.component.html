@@ -3,6 +3,7 @@
   <button (click)="navigateToStations()" class="station-view-button">Enter Station View</button>
   <button (click)="editingCategories = true">Edit Categories</button>
   <button (click)="editingModels = true">Edit Models</button>
+  <button (click)="addBike()">Create New Bike</button>
   <div *ngFor="let bike of bikes" 
          class="bike-item" 
          [ngClass]="{'mountain-bike': bike.category_name === 'mountain', 
@@ -69,8 +70,6 @@
 <div *ngIf="selectedBike" class="bike-details-view">
   <button (click)="selectedBike = null">Close Details</button>
     <h3>Bike Details: (ID: #{{ selectedBike.bike_id }})</h3>
-    <p>Category: {{ selectedBike.category_name }}</p>
-    <p>Model: {{ selectedBike.model_name }}</p>
     <p>Current Status: {{ selectedBike.status }}</p>
     <p>Current Station and Spot: {{ selectedBike.station_id }} -- {{ selectedBike.place_number }}</p>
     <h4>Model details: </h4>
