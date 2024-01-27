@@ -56,8 +56,18 @@
     "unique_id":"SAnew"
 }
 
-//bike reassign
+// model review
 {
-    "bike_id": 30,
-    "new_place_id": 10
+    "model_id": 2,
+    "user_id": 2,
+    "rating": 4,
+    "text": "good stuffff"
+}
+
+// station review
+{
+    "station_id": 2,
+    "user_id": 2,
+    "rating": 4,
+    "text": "good stuffff"
 }

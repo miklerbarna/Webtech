@@ -673,22 +673,106 @@ app.delete("/bike", async (req, res) => {
 
         const bikeId = req.body.bike_id;
 
-        // Also update station properties, reduce places taken
+        const stationQuery = `UPDATE bike_stations 
+        SET places_taken=places_taken - 1
+        WHERE station_id IN (
+        SELECT station_id FROM bikes WHERE bike_id = ${bikeId})`;
+        const stationResponse = await pool.query(stationQuery);
+
 
         const query = `DELETE FROM bikes WHERE bike_id=${bikeId}`;
 
         const results = await pool.query(query);
 
-        if (results.rowCount === 0) {
-            res.status(401).send("No Delete");
-        } else {
-            res.status(200).send("Deleted");
-        }
+        res.status(200).send("Deleted");
     } catch (err) {
         res.status(402).send("Error when accessing database: " + err);
     }
 });
 //#endregion
+
+
+//Customer Routers
+//#region 
+app.post("/user", async (req,res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
+
+        const user = req.body;
+        const query = `INSERT INTO users(email, password, wallet_balance)
+                       VALUES('${user.email}', '${user.password}', 0)`;
+
+        const results = await pool.query(query);
+
+        res.status(200).send("User created");
+    } catch (err) {
+        res.status(402).send("Error when accessing database: " + err);
+    }
+});
+
+app.delete("/user", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
+
+        const userId = req.body.user_id;
+
+        const modelReviewDeleteQuery = `DELETE FROM model_reviews
+        WHERE user_id=${userId}`
+        const modelReviewDeleteResponse = pool.query(modelReviewDeleteQuery);
+
+        const stationReviewDeleteQuery = `DELETE FROM station_reviews
+        WHERE user_id=${userId}`
+        const stationReviewDeleteResponse = pool.query(stationReviewDeleteQuery);
+
+        const userDeleteQuery = `DELETE FROM users WHERE user_id=${userId}`;
+        const userDeleteResponse = await pool.query(userDeleteQuery);
+
+        res.status(200).send("Deleted");
+    } catch (err) {
+        res.status(402).send("Error when accessing database: " + err);
+    }
+});
+//#endregion
+
+
+
+//Review Routers
+//#region 
+app.post("/review/model", async (req,res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
+
+        let review = req.body;
+        const reviewQuery = `INSERT INTO model_reviews(model_id, user_id, rating, review_text) 
+        VALUES(${review.model_id},${review.user_id}, ${review.rating}, '${review.text}')`;
+        let reviewResponse = await pool.query(reviewQuery);
+
+        res.status(200).send("Review Created");
+    } catch (err) {
+        res.status(402).send("Error when accessing database: " + err);
+    }
+
+});
+
+app.post("/review/station", async (req,res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
+
+        let review = req.body;
+        const reviewQuery = `INSERT INTO station_reviews(station_id, user_id, rating, review_text) 
+        VALUES(${review.station_id},${review.user_id}, ${review.rating}, '${review.text}')`;
+        let reviewResponse = await pool.query(reviewQuery);
+
+        res.status(200).send("Review Created");
+    } catch (err) {
+        res.status(402).send("Error when accessing database: " + err);
+    }
+
+});
+
+//#endregion
+
+
 
 
 

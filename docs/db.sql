@@ -57,29 +57,29 @@ CREATE TABLE bikes (
 --booked: it is at a station but a ticket is already booked for it
 --parked: it is at t place in a station and is free to book/use
 
--- Table to store information about customer accounts
-CREATE TABLE customers (
-    customer_id SERIAL PRIMARY KEY,
+-- Table to store information about user accounts
+CREATE TABLE users (
+    user_id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     wallet_balance DECIMAL(10, 2) DEFAULT 0.0
 );
 
 
--- Table to store customer reviews for bike models
+-- Table to store user reviews for bike models
 CREATE TABLE model_reviews (
     review_id SERIAL PRIMARY KEY,
     model_id INTEGER REFERENCES bike_models(model_id),
-    customer_id INTEGER REFERENCES customers(customer_id),
+    user_id INTEGER REFERENCES users(user_id),
     rating INTEGER,
     review_text TEXT
 );
 
--- Table to store customer reviews for bike stations
+-- Table to store user reviews for bike stations
 CREATE TABLE station_reviews (
     review_id SERIAL PRIMARY KEY,
     station_id INTEGER REFERENCES bike_stations(station_id),
-    customer_id INTEGER REFERENCES customers(customer_id),
+    user_id INTEGER REFERENCES users(user_id),
     rating INTEGER,
     review_text TEXT
 );
@@ -88,7 +88,7 @@ CREATE TABLE station_reviews (
 -- Table to store information about booked tickets
 --CREATE TABLE booked_tickets (
 --    ticket_id SERIAL PRIMARY KEY,
---    customer_id INTEGER REFERENCES customers(customer_id),
+--    user_id INTEGER REFERENCES users(user_id),
 --    bike_id INTEGER REFERENCES bikes(bike_id),
 --    start_time TIMESTAMP NOT NULL,
 --    end_time TIMESTAMP NOT NULL,
@@ -181,14 +181,14 @@ INSERT INTO bikes(model_id, unique_id, station_id, place_id, place_number, statu
 (4,	'CH9',	3,24,4, 'parked'),
 (4,	'CH10',	3,25,5, 'parked');
 
-INSERT INTO customers(email, password_hash, wallet_balance) VALUES
-('user1@example.com', 'password_hash_1', 0.00),
-('user2@example.com', 'password_hash_2', 0.00),
-('user3@example.com', 'password_hash_3', 0.00);
+INSERT INTO users(email, password, wallet_balance) VALUES
+('user1@example.com', 'password1', 0.00),
+('user2@example.com', 'password2', 0.00),
+('user3@example.com', 'password3', 0.00);
 
 
 
-INSERT INTO model_reviews(model_id, customer_id, rating, review_text) VALUES
+INSERT INTO model_reviews(model_id, user_id, rating, review_text) VALUES
 (3,	1,	4,	'Lovely childs bike'),
 (3,	3,	5,	'Very safe bike'),
 (4,	2,	3,	'There is room for improvement..'),
@@ -198,7 +198,7 @@ INSERT INTO model_reviews(model_id, customer_id, rating, review_text) VALUES
 (5,	3,	4,	'Very durable bike');
 
 
-INSERT INTO station_reviews(station_id, customer_id, rating, review_text) VALUES
+INSERT INTO station_reviews(station_id, user_id, rating, review_text) VALUES
 (1,	1,	5,	'Plenty of bikes available and easy to use'),
 (1,	2,	4,	'Convenient location'),
 (2,	3,	3,	'This station needs improvement'),
@@ -208,7 +208,7 @@ INSERT INTO station_reviews(station_id, customer_id, rating, review_text) VALUES
 
 
 ------------------------------------NOT YET NEEDED------------------------------------
---INSERT INTO booked_tickets(customer_id, bike_id, start_time, end_time, ticket_price, station_id, status) VALUES
+--INSERT INTO booked_tickets(user_id, bike_id, start_time, end_time, ticket_price, station_id, status) VALUES
 --(1,	11,	'2024-02-29 08:00:00',	'2024-02-29 10:00:00',	20.00,	1,	'bought'),
 --(3,	3,	'2024-02-15 07:00:00',	'2024-02-15 09:00:00',	20.00,	2,	'bought');
 ------------------------------------NOT YET NEEDED------------------------------------
