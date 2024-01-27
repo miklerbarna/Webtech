@@ -21,31 +21,31 @@ app.get("/", (req, res) => {
 
 //GET REQUESTS, API for sending data
 //#region 
-
 app.get("/stations", async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/json');
-        let query = 'select * from bike_stations';
+        
+        let bikeQuery = 'SELECT * FROM bike_stations';
 
-        const result = await pool.query(query);
-        const response = result.rows;
+        const bikeResponse = await pool.query(bikeQuery);
+        const response = bikeResponse.rows;
 
         let i = 0;
         for (const row of response) {
-            let query = `SELECT place_number, place_id, name AS category 
+            let placesQuery = `SELECT place_number, place_id, name AS category 
             FROM parking_places JOIN bike_categories
             ON parking_places.category_id = bike_categories.category_id
             WHERE station_id=${row['station_id']}
             ORDER BY place_number`;
             
-            const results = await pool.query(query);
-            response[i]['places'] = results.rows;
+            const placesResponse = await pool.query(placesQuery);
+            response[i]['places'] = placesResponse.rows;
             i += 1;
         }
         
         i = 0;
         for (const row of response) {
-            let query = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
+            let bikesQuery = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
             description, wheel_size, manufacturer, brakes_type, bike_categories.category_id as category_id, 
             bike_categories.name as category_name  
             FROM bikes NATURAL JOIN bike_models JOIN bike_categories
@@ -53,24 +53,26 @@ app.get("/stations", async (req, res) => {
             WHERE bikes.station_id=${row['station_id']}
             ORDER BY bikes.place_id`;
             
-            const results = await pool.query(query);
-            response[i]['bikes'] = results.rows;
+            const bikeResponse = await pool.query(bikesQuery);
+            response[i]['bikes'] = bikeResponse.rows;
             i += 1;
         }
 
         i = 0;
         for (const row of response) {
-            let query = `SELECT * 
+            let reviewsQuery = `SELECT * 
             FROM station_reviews
             WHERE station_id=${row['station_id']}`;
             
-            const results = await pool.query(query);
-            response[i]['reviews'] = results.rows;
+            const reviewsResponse = await pool.query(reviewsQuery);
+            response[i]['reviews'] = reviewsResponse.rows;
             i += 1
         }
+        
         res.status(200).send(response);
+        
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(401).send("Error when accessing database: " + err);
     }
 });
 
@@ -78,54 +80,53 @@ app.get("/stations", async (req, res) => {
 app.get("/station/:id", async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/json');
+        
+        let bikeQuery = 'SELECT * FROM bike_stations';
 
-        let query = 'select * from bike_stations';
-        const result = await pool.query(query);
-
-        const promises = [];
-        const response = result.rows;
+        const bikeResponse = await pool.query(bikeQuery);
+        const response = bikeResponse.rows;
 
         let i = 0;
         for (const row of response) {
-            let query = `SELECT place_number, place_id, name AS category 
-                            FROM parking_places JOIN bike_categories
-                            ON parking_places.category_id = bike_categories.category_id
-                            WHERE station_id=${row['station_id']}
-                            ORDER BY place_number`;
-
-            const results = await pool.query(query);
-            response[i]['places'] = results.rows;
+            let placesQuery = `SELECT place_number, place_id, name AS category 
+            FROM parking_places JOIN bike_categories
+            ON parking_places.category_id = bike_categories.category_id
+            WHERE station_id=${row['station_id']}
+            ORDER BY place_number`;
+            
+            const placesResponse = await pool.query(placesQuery);
+            response[i]['places'] = placesResponse.rows;
+            i += 1;
+        }
+        
+        i = 0;
+        for (const row of response) {
+            let bikesQuery = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
+            description, wheel_size, manufacturer, brakes_type, bike_categories.category_id as category_id, 
+            bike_categories.name as category_name  
+            FROM bikes NATURAL JOIN bike_models JOIN bike_categories
+            ON bike_models.category_id = bike_categories.category_id 
+            WHERE bikes.station_id=${row['station_id']}
+            ORDER BY bikes.place_id`;
+            
+            const bikeResponse = await pool.query(bikesQuery);
+            response[i]['bikes'] = bikeResponse.rows;
             i += 1;
         }
 
         i = 0;
         for (const row of response) {
-            let query = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
-                            description, wheel_size, manufacturer, brakes_type, bike_categories.category_id as category_id, 
-                            bike_categories.name as category_name  
-                            FROM bikes NATURAL JOIN bike_models JOIN bike_categories
-                            ON bike_models.category_id = bike_categories.category_id 
-                            WHERE bikes.station_id=${row['station_id']}
-                            ORDER BY bikes.place_id`;
-
-            const results = await pool.query(query);
-            response[i]['bikes'] = results.rows;
-            i += 1;
-        }
-
-        i = 0;
-        for (const row of response) {
-            let query = `SELECT * 
-                            FROM station_reviews
-                            WHERE station_id=${row['station_id']}`;
-
-            const results = await pool.query(query);
-            response[i]['reviews'] = results.rows;
-            i += 1;
+            let reviewsQuery = `SELECT * 
+            FROM station_reviews
+            WHERE station_id=${row['station_id']}`;
+            
+            const reviewsResponse = await pool.query(reviewsQuery);
+            response[i]['reviews'] = reviewsResponse.rows;
+            i += 1
         }
 
         res.status(200).send(response.filter(station => station.station_id == req.params.id)[0]);
-
+        
     } catch (err) {
         res.status(402).send("Error when accessing database: " + err);
     }
@@ -136,16 +137,13 @@ app.get("/categories", async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/json');
 
-        const query = `SELECT * FROM bike_categories`;
-        const result = await pool.query(query);
+        const categoriesQuery = `SELECT * FROM bike_categories`;
+        const categoriesResponse = await pool.query(categoriesQuery);
+        
+        res.status(200).send(categoriesResponse.rows);
 
-        if (result.rowCount === 0) {
-            res.status(401).send("No categories retrieved");
-        } else {
-            res.status(200).send(result.rows);
-        }
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(403).send("Error when accessing database: " + err);
     }
 });
 
@@ -154,16 +152,13 @@ app.get("/models", async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/json');
 
-        const query = `SELECT * FROM bike_models`;
-        const result = await pool.query(query);
+        const modelsQuery = `SELECT * FROM bike_models`;
+        const modelsResponse = await pool.query(modelsQuery);
 
-        if (result.rowCount === 0) {
-            res.status(401).send("No models retrieved");
-        } else {
-            res.status(200).send(result.rows);
-        }
+        res.status(200).send(modelsResponse.rows);
+
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(404).send("Error when accessing database: " + err);
     }
 });
 
@@ -172,39 +167,36 @@ app.get("/bikes", async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/json');
 
-        const query = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
-                        description, wheel_size, manufacturer, brakes_type, bike_categories.category_id as category_id, 
-                        bike_categories.name as category_name, bikes.station_id  
-                        FROM bikes NATURAL JOIN bike_models JOIN bike_categories
-                     ON bike_models.category_id = bike_categories.category_id 
-                     ORDER BY bikes.bike_id`;
+        const bikesQuery = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
+        description, wheel_size, manufacturer, brakes_type, bike_categories.category_id as category_id, 
+        bike_categories.name as category_name, bikes.station_id  
+        FROM bikes NATURAL JOIN bike_models JOIN bike_categories
+        ON bike_models.category_id = bike_categories.category_id 
+        ORDER BY bikes.bike_id`;
 
-        const result = await pool.query(query);
+        const bikesResponse = await pool.query(bikesQuery);
 
-        if (result.rowCount === 0) {
-            res.status(401).send("No bikes retrieved");
-        } else {
-            const response = result.rows;
-            const promises = [];
+        const response = bikesResponse.rows;
+        const promises = [];
 
-            for (const bike of response) {
-                const reviewsQuery = `SELECT customer_id, rating, review_text 
-                                     FROM model_reviews
-                                     WHERE model_id = ${bike['model_id']}`;
+        for (const bike of response) {
+            const reviewsQuery = `SELECT customer_id, rating, review_text 
+            FROM model_reviews
+            WHERE model_id = ${bike['model_id']}`;
 
-                promises.push(pool.query(reviewsQuery).then(reviewsResult => {
-                    bike['reviews'] = reviewsResult.rows;
-                }).catch(err => {
-                    res.status(402).send("Error when accessing database: " + err);
-                }));
-            }
-
-            await Promise.all(promises);
-
-            res.status(200).send(response);
+            promises.push(pool.query(reviewsQuery).then(reviewsResult => {
+                bike['reviews'] = reviewsResult.rows;
+            }).catch(err => {
+                res.status(402).send("Error when accessing database: " + err);
+            }));
         }
+
+        await Promise.all(promises);
+
+        res.status(200).send(response);
+
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(405).send("Error when accessing database: " + err);
     }
 });
 
@@ -213,40 +205,37 @@ app.get("/bike/:id", async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/json');
 
-        const query = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
-            description, wheel_size, manufacturer, brakes_type, bike_categories.category_id as category_id, 
-            bike_categories.name as category_name, bikes.station_id  
-            FROM bikes NATURAL JOIN bike_models JOIN bike_categories
-            ON bike_models.category_id = bike_categories.category_id 
-            WHERE bike_id=${req.params.id}
-            ORDER BY bikes.bike_id`;
+        const bikeQuery = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
+        description, wheel_size, manufacturer, brakes_type, bike_categories.category_id as category_id, 
+        bike_categories.name as category_name, bikes.station_id  
+        FROM bikes NATURAL JOIN bike_models JOIN bike_categories
+        ON bike_models.category_id = bike_categories.category_id 
+        WHERE bike_id=${req.params.id}
+        ORDER BY bikes.bike_id`;
 
-        const result = await pool.query(query);
+        const bikeResponse = await pool.query(bikeQuery);
 
-        if (result.rowCount === 0) {
-            res.status(401).send("No bikes retrieved");
-        } else {
-            const response = result.rows;
-            const promises = [];
+        const response = bikeResponse.rows;
+        const promises = [];
 
-            for (const bike of response) {
-                const reviewsQuery = `SELECT customer_id, rating, review_text 
-                                     FROM model_reviews
-                                     WHERE model_id = ${bike['model_id']}`;
+        for (const bike of response) {
+            const reviewsQuery = `SELECT customer_id, rating, review_text 
+            FROM model_reviews
+            WHERE model_id = ${bike['model_id']}`;
 
-                promises.push(pool.query(reviewsQuery).then(reviewsResult => {
-                    bike['reviews'] = reviewsResult.rows;
-                }).catch(err => {
-                    res.status(402).send("Error when accessing database: " + err);
-                }));
-            }
-
-            await Promise.all(promises);
-
-            res.status(200).send(response);
+            promises.push(pool.query(reviewsQuery).then(reviewsResult => {
+                bike['reviews'] = reviewsResult.rows;
+            }).catch(err => {
+                res.status(406).send("Error when accessing database: " + err);
+            }));
         }
+
+        await Promise.all(promises);
+
+        res.status(200).send(response);
+
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(407).send("Error when accessing database: " + err);
     }
 });
 
@@ -255,16 +244,13 @@ app.get("/model_reviews", async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/json');
 
-        const query = `SELECT * FROM model_reviews`;
-        const result = await pool.query(query);
+        const reviewsQuery = `SELECT * FROM model_reviews`;
+        const reviewsResponse = await pool.query(reviewsQuery);
 
-        if (result.rowCount === 0) {
-            res.status(401).send("No reviews retrieved");
-        } else {
-            res.status(200).send(result.rows);
-        }
+        res.status(200).send(reviewsResponse.rows);
+
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(408).send("Error when accessing database: " + err);
     }
 });
 
@@ -280,38 +266,36 @@ app.post("/station", async (req, res) => {
         const stat = req.body;
 
         const insertStationQuery = `INSERT INTO bike_stations(name, address, city, latitude, longitude, places_taken, places_all)
-                                    VALUES ('${stat.name}', '${stat.address}', '${stat.city}', ${stat.latitude}, ${stat.longitude}, 0, ${stat.places_all})`;
+        VALUES ('${stat.name}', '${stat.address}', '${stat.city}', ${stat.latitude}, ${stat.longitude}, 0, ${stat.places_all})`;
 
         const stationResults = await pool.query(insertStationQuery);
 
-        if (stationResults.rowCount === 0) {
-            res.status(401).send("No row added");
-        } else {
-            // inserting parking places
-            const selectStationQuery = `SELECT * FROM bike_stations WHERE name='${stat.name}'`;
-            const stationResult = await pool.query(selectStationQuery);
-            const station = stationResult.rows[0];
-            console.log(station);
-            let placesDone = 0;
+        // inserting parking places
+        const selectStationQuery = `SELECT * FROM bike_stations WHERE name='${stat.name}'`;
+        const stationResult = await pool.query(selectStationQuery);
+        const station = stationResult.rows[0];
+        console.log(station);
+        let placesDone = 0;
 
-            for (const place of stat.places) {
-                console.log(place);
-                for (let index = 0; index < place.place_num; index++) {
-                    const insertPlaceQuery = `INSERT INTO parking_places(station_id, place_number, category_id)
-                                              VALUES (${station.station_id}, ${placesDone}, ${place.category})`;
+        for (const place of stat.places) {
+            console.log(place);
+            for (let index = 0; index < place.place_num; index++) {
+                const insertPlaceQuery = `INSERT INTO parking_places(station_id, place_number, category_id)
+                VALUES (${station.station_id}, ${placesDone}, ${place.category})`;
 
-                    console.log(insertPlaceQuery);
-                    await pool.query(insertPlaceQuery);
+                console.log(insertPlaceQuery);
+                await pool.query(insertPlaceQuery);
 
-                    console.log(`Num: ${placesDone} --parking place created`);
-                    placesDone++;
-                }
+                console.log(`Num: ${placesDone} --parking place created`);
+                placesDone++;
             }
-            res.status(200).send("Station created");
         }
+
+        res.status(200).send("Station Created");
+
     } catch (err) {
         console.error("Error when accessing database: " + err);
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(409).send("Error when accessing database: " + err);
     }
 });
 
@@ -327,34 +311,34 @@ app.put("/station", async (req, res) => {
             if (key === "station_id") continue;
             if (stat.hasOwnProperty(key)) {
                 const value = stat[key];
-                let query = ';';
+                let updateQuery = ';';
 
                 if (typeof value === 'string') {
-                    query = `UPDATE bike_stations
-                             SET ${key}='${value}'
-                             WHERE station_id=${statId}`;
+                    updateQuery = `UPDATE bike_stations
+                    SET ${key}='${value}'
+                    WHERE station_id=${statId}`;
+
                 } else {
-                    query = `UPDATE bike_stations
-                             SET ${key}=${value}
-                             WHERE station_id=${statId}`;
+                    updateQuery = `UPDATE bike_stations
+                    SET ${key}=${value}
+                    WHERE station_id=${statId}`;
+
                 }
 
-                console.log(query);
+                console.log(updateQuery);
 
-                const results = await pool.query(query);
+                const updateResponse = await pool.query(updateQuery);
 
-                if (results.rowCount === 0) {
-                    res.status(401).send("No Update");
-                } else {
+                if (updateResponse.rowCount !== 0) {
                     console.log(`Updated ${key}`);
                 }
             }
         }
 
-        res.status(200).send("Updated");
+        res.status(200).send("Station Updated");
+
     } catch (err) {
-        console.error("Error when accessing database: " + err);
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(410).send("Error when accessing database: " + err);
     }
 });
 
@@ -378,11 +362,10 @@ app.delete("/station", async (req, res) => {
         const deleteStationQuery = `DELETE FROM bike_stations WHERE station_id=${statId}`;
         const stationResults = await pool.query(deleteStationQuery);
     
-        res.status(200).send("Deleted");
+        res.status(200).send("Station Deleted");
 
     } catch (err) {
-        console.error("Error when accessing database: " + err);
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(411).send("Error when accessing database: " + err);
     }
 });
 //#endregion
@@ -395,18 +378,15 @@ app.post("/category", async (req, res) => {
 
         const category = req.body;
 
-        const query = `INSERT INTO bike_categories(name)
-                       VALUES ('${category.name}')`;
+        const bikeInsertQuery = `INSERT INTO bike_categories(name)
+        VALUES ('${category.name}')`;
 
-        const results = await pool.query(query);
+        const bikeInsertResponse = await pool.query(bikeInsertQuery);
 
-        if (results.rowCount === 0) {
-            res.status(401).send("No row added");
-        } else {
-            res.status(200).send("Row added");
-        }
+        res.status(200).send("Category Added");
+
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(412).send("Error when accessing database: " + err);
     }
 });
 
@@ -416,20 +396,16 @@ app.put("/category", async (req, res) => {
 
         const category = req.body;
 
-        const query = `UPDATE bike_categories 
-                       SET name='${category.name}'
-                       WHERE category_id=${category.id} `;
+        const updateQuery = `UPDATE bike_categories 
+        SET name='${category.name}'
+        WHERE category_id=${category.id} `;
 
-        const results = await pool.query(query);
+        const updateResponse = await pool.query(updateQuery);
 
-        if (results.rowCount === 0) {
-            res.status(401).send("No Update");
-        } else {
-            res.status(200).send("Updated");
-        }
+        res.status(200).send("Category Updated");
+        
     } catch (err) {
-        console.error("Error when accessing database: " + err);
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(413).send("Error when accessing database: " + err);
     }
 });
 
@@ -439,8 +415,6 @@ app.delete("/category", async (req, res) => {
 
         const category = req.body;
 
-        //UPDATE STATION (places_taken - deletebikeResponse rowcount?)
-        
         const bikeDeleteQuery = `DELETE FROM bikes 
         WHERE model_id IN (SELECT DISTINCT model_id FROM bike_models WHERE category_id=${category.id})`;
         const bikeDeleteResponse = await pool.query(bikeDeleteQuery);
@@ -476,10 +450,11 @@ app.delete("/category", async (req, res) => {
         WHERE category_id=${category.id}`;
         const categoryDeleteResponse = await pool.query(categoryDeleteQuery);
 
-        res.status(200).send("Deleted Category");
+        res.status(200).send("Category Deleted");
+
     } catch (err) {
         console.error("Error when accessing database: " + err);
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(414).send("Error when accessing database: " + err);
     }
 });
 //#endregion
@@ -494,18 +469,15 @@ app.post("/model", async (req, res) => {
 
         console.log("Adding Model: " + model.name);
 
-        const query = `INSERT INTO bike_models(category_id, name, description, wheel_size, manufacturer, brakes_type)
-                       VALUES(${model.category_id}, '${model.name}', '${model.description}', ${model.wheel_size}, '${model.manufacturer}', '${model.brakes_type}')`;
+        const insertQuery = `INSERT INTO bike_models(category_id, name, description, wheel_size, manufacturer, brakes_type)
+        VALUES(${model.category_id}, '${model.name}', '${model.description}', ${model.wheel_size}, '${model.manufacturer}', '${model.brakes_type}')`;
 
-        const results = await pool.query(query);
+        const insertResponse = await pool.query(insertQuery);
 
-        if (results.rowCount === 0) {
-            res.status(401).send("No Creation");
-        } else {
-            res.status(200).send("Created");
-        }
+        res.status(200).send("Created Model");
+
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(415).send("Error when accessing database: " + err);
     }
 });
 
@@ -521,33 +493,34 @@ app.put("/model", async (req, res) => {
             if (key === "model_id") continue;
             if (model.hasOwnProperty(key)) {
                 const value = model[key];
-                let query = ``;
+                let updateQuery = ``;
 
                 if (typeof value === 'string') {
-                    query = `UPDATE bike_models
-                             SET ${key}='${value}'
-                             WHERE model_id=${modelId}`;
+                    updateQuery = `UPDATE bike_models
+                    SET ${key}='${value}'
+                    WHERE model_id=${modelId}`;
+
                 } else {
-                    query = `UPDATE bike_models
-                             SET ${key}=${value}
-                             WHERE model_id=${modelId}`;
+                    updateQuery = `UPDATE bike_models
+                    SET ${key}=${value}
+                    WHERE model_id=${modelId}`;
+                
                 }
 
-                console.log(query);
+                console.log(updateQuery);
 
-                const results = await pool.query(query);
+                const updateResponse = await pool.query(updateQuery);
 
-                if (results.rowCount === 0) {
-                    res.status(401).send("No Update");
-                } else {
+                if (updateResponse.rowCount !== 0) {
                     console.log(`Updated ${key}`);
                 }
             }
         }
 
-        res.status(200).send("Updated");
+        res.status(200).send("Updated Model");
+
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(416).send("Error when accessing database: " + err);
     }
 });
 
@@ -576,13 +549,13 @@ app.delete("/model", async (req, res) => {
         await pool.query(deleteBikesQuery);
 
         const deleteModelQuery = `DELETE FROM bike_models WHERE model_id=${req.body.model_id}`;
-        const results = await pool.query(deleteModelQuery);
+        const deleteModelResponse = await pool.query(deleteModelQuery);
 
-        res.status(200).send("Deleted");
+        res.status(200).send("Deleted Model");
 
     } catch (err) {
         console.error("Error when accessing database: " + err);
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(417).send("Error when accessing database: " + err);
     }
 });
 //#endregion
@@ -594,19 +567,16 @@ app.post("/bike", async (req, res) => {
         res.setHeader('Content-Type', 'text/html');
 
         const bike = req.body;
-        // Originally it is not assigned to any station-place
-        const query = `INSERT INTO bikes(model_id, unique_id, station_id, place_id, place_number, status)
-                       VALUES(${bike.model_id}, '${bike.unique_id}', NULL, NULL, -1, 'wild')`;
 
-        const results = await pool.query(query);
+        const insertQuery = `INSERT INTO bikes(model_id, unique_id, station_id, place_id, place_number, status)
+        VALUES(${bike.model_id}, '${bike.unique_id}', NULL, NULL, -1, 'wild')`;
 
-        if (results.rowCount === 0) {
-            res.status(401).send("No Creation");
-        } else {
-            res.status(200).send("Created");
-        }
+        const insertResponse = await pool.query(insertQuery);
+
+        res.status(200).send("Created Bike");
+        
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(418).send("Error when accessing database: " + err);
     }
 });
 
@@ -622,48 +592,49 @@ app.put("/bike", async (req, res) => {
             if (key === "bike_id") continue;
             if (bike.hasOwnProperty(key)) {
                 const value = bike[key];
-                let query = ``;
+                let updateQuery = ``;
                 
                 //How should this section be handled by frontend-backend
                 if (key === "status") {
-                    if (value === "wild") { //changingto wild
+                    if (value === "wild") { //changing to wild
 
-                        console.log("to wild");
                         const stationQuery = `UPDATE bike_stations 
                         SET places_taken=places_taken - 1
                         WHERE station_id IN (
                         SELECT station_id FROM bikes WHERE bike_id = ${bike['bike_id']})`;
+
                         const stationResponse = await pool.query(stationQuery);
+
                     } else { //changing to parked
                         console.log("to parked");
+                        //check if there is parking place left and if it fits the category
                     }
                 }
 
                 if (typeof value === 'string') {
-                    query = `UPDATE bikes
+                    updateQuery = `UPDATE bikes
                              SET ${key}='${value}'
                              WHERE bike_id=${bikeId}`;
                 } else {
-                    query = `UPDATE bikes
+                    updateQuery = `UPDATE bikes
                              SET ${key}=${value}
                              WHERE bike_id=${bikeId}`;
                 }
 
-                console.log(query);
+                console.log(updateQuery);
 
-                const results = await pool.query(query);
+                const updateResult = await pool.query(updateQuery);
 
-                if (results.rowCount === 0) {
-                    res.status(401).send("No Update");
-                } else {
+                if (updateResult.rowCount !== 0) {
                     console.log(`Updated ${key}`);
                 }
             }
         }
 
-        res.status(200).send("Updated");
+        res.status(200).send("Updated Bike");
+
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(419).send("Error when accessing database: " + err);
     }
 });
 
@@ -680,17 +651,17 @@ app.delete("/bike", async (req, res) => {
         const stationResponse = await pool.query(stationQuery);
 
 
-        const query = `DELETE FROM bikes WHERE bike_id=${bikeId}`;
+        const deleteQuery = `DELETE FROM bikes WHERE bike_id=${bikeId}`;
 
-        const results = await pool.query(query);
+        const deleteResponse = await pool.query(deleteQuery);
 
-        res.status(200).send("Deleted");
+        res.status(200).send("Deleted Bike");
+
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(420).send("Error when accessing database: " + err);
     }
 });
 //#endregion
-
 
 //Customer Routers
 //#region 
@@ -699,14 +670,15 @@ app.post("/user", async (req,res) => {
         res.setHeader('Content-Type', 'text/html');
 
         const user = req.body;
-        const query = `INSERT INTO users(email, password, wallet_balance)
+        const insertQuery = `INSERT INTO users(email, password, wallet_balance)
                        VALUES('${user.email}', '${user.password}', 0)`;
 
-        const results = await pool.query(query);
+        const insertResponse = await pool.query(insertQuery);
 
-        res.status(200).send("User created");
+        res.status(200).send("User Created");
+
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(421).send("Error when accessing database: " + err);
     }
 });
 
@@ -727,14 +699,12 @@ app.delete("/user", async (req, res) => {
         const userDeleteQuery = `DELETE FROM users WHERE user_id=${userId}`;
         const userDeleteResponse = await pool.query(userDeleteQuery);
 
-        res.status(200).send("Deleted");
+        res.status(200).send("User Deleted");
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(422).send("Error when accessing database: " + err);
     }
 });
 //#endregion
-
-
 
 //Review Routers
 //#region 
@@ -748,8 +718,9 @@ app.post("/review/model", async (req,res) => {
         let reviewResponse = await pool.query(reviewQuery);
 
         res.status(200).send("Review Created");
+
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(423).send("Error when accessing database: " + err);
     }
 
 });
@@ -764,16 +735,14 @@ app.post("/review/station", async (req,res) => {
         let reviewResponse = await pool.query(reviewQuery);
 
         res.status(200).send("Review Created");
+
     } catch (err) {
-        res.status(402).send("Error when accessing database: " + err);
+        res.status(424).send("Error when accessing database: " + err);
     }
 
 });
 
 //#endregion
-
-
-
 
 
 let port = 3000;
