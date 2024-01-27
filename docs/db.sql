@@ -65,17 +65,6 @@ CREATE TABLE customers (
     wallet_balance DECIMAL(10, 2) DEFAULT 0.0
 );
 
--- Table to store information about booked tickets
-CREATE TABLE booked_tickets (
-    ticket_id SERIAL PRIMARY KEY,
-    customer_id INTEGER REFERENCES customers(customer_id),
-    bike_id INTEGER REFERENCES bikes(bike_id),
-    start_time TIMESTAMP NOT NULL,
-    end_time TIMESTAMP NOT NULL,
-    ticket_price DECIMAL(10, 2) NOT NULL,
-    station_id INTEGER REFERENCES bike_stations(station_id),
-    status VARCHAR(50) NOT NULL -- e.g., "bought", "active", "returned", "overdue"
-);
 
 -- Table to store customer reviews for bike models
 CREATE TABLE model_reviews (
@@ -94,6 +83,20 @@ CREATE TABLE station_reviews (
     rating INTEGER,
     review_text TEXT
 );
+
+------------------------------------NOT YET NEEDED------------------------------------
+-- Table to store information about booked tickets
+--CREATE TABLE booked_tickets (
+--    ticket_id SERIAL PRIMARY KEY,
+--    customer_id INTEGER REFERENCES customers(customer_id),
+--    bike_id INTEGER REFERENCES bikes(bike_id),
+--    start_time TIMESTAMP NOT NULL,
+--    end_time TIMESTAMP NOT NULL,
+--    ticket_price DECIMAL(10, 2) NOT NULL,
+--    station_id INTEGER REFERENCES bike_stations(station_id),
+--    status VARCHAR(50) NOT NULL -- e.g., "bought", "active", "returned", "overdue"
+--);
+------------------------------------NOT YET NEEDED------------------------------------
 
 INSERT INTO bike_stations(name, address, city, latitude, longitude,places_taken, places_all) VALUES
 ('Station A', '123 Main St', 'Cityville', 40.7128, -74.006, 10,	10),
@@ -184,9 +187,6 @@ INSERT INTO customers(email, password_hash, wallet_balance) VALUES
 ('user3@example.com', 'password_hash_3', 0.00);
 
 
-INSERT INTO booked_tickets(customer_id, bike_id, start_time, end_time, ticket_price, station_id, status) VALUES
-(1,	11,	'2024-02-29 08:00:00',	'2024-02-29 10:00:00',	20.00,	1,	'bought'),
-(3,	3,	'2024-02-15 07:00:00',	'2024-02-15 09:00:00',	20.00,	2,	'bought');
 
 INSERT INTO model_reviews(model_id, customer_id, rating, review_text) VALUES
 (3,	1,	4,	'Lovely childs bike'),
@@ -205,3 +205,10 @@ INSERT INTO station_reviews(station_id, customer_id, rating, review_text) VALUES
 (3,	2,	4,	'Bikes were in good shape, and the process was quick'),
 (3,	1,	3,	'Inefficient setup'),
 (3,	3,	2,	'Not impressed with this station');
+
+
+------------------------------------NOT YET NEEDED------------------------------------
+--INSERT INTO booked_tickets(customer_id, bike_id, start_time, end_time, ticket_price, station_id, status) VALUES
+--(1,	11,	'2024-02-29 08:00:00',	'2024-02-29 10:00:00',	20.00,	1,	'bought'),
+--(3,	3,	'2024-02-15 07:00:00',	'2024-02-15 09:00:00',	20.00,	2,	'bought');
+------------------------------------NOT YET NEEDED------------------------------------

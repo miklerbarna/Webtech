@@ -22,689 +22,674 @@ app.get("/", (req, res) => {
 //GET REQUESTS, API for sending data
 //#region 
 
-app.get("/stations", (req,res) => {
-    
-    res.setHeader('Content-Type', 'application/json');
+app.get("/stations", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'application/json');
+        let query = 'select * from bike_stations';
 
-    let query = 'select * from bike_stations';
+        const result = await pool.query(query);
+        const response = result.rows;
 
-    pool.query(query).then(result => {
-        if (result.rowCount == 0) {
-            res.status(401).send("No stations from database");
-        }
-        else {
-            var promises = []
-            var response = result.rows;
-            for (const row of response) {
-                let query = `SELECT place_number, place_id,name AS category 
-                             FROM parking_places JOIN bike_categories
-                             ON parking_places.category_id = bike_categories.category_id
-                             WHERE station_id=${row['station_id']}
-                             ORDER BY place_number`
-                promises.push(pool.query(query).then(results => {
-                    if (results.rowCount == 0) {
-                        res.status(401).send(`No parking place of station_id ${row['station_id']} from database`);
-                    }
-                    else {
-                        response[row['station_id']-1]['places'] = results.rows
-                    }
-                }));
-            }
-
-            for (const row of response) {
-                let query = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
-                                description, wheel_size,manufacturer, brakes_type,bike_categories.category_id as category_id, 
-                                bike_categories.name as category_name  
-                             FROM bikes NATURAL JOIN bike_models JOIN bike_categories
-                             ON bike_models.category_id = bike_categories.category_id 
-                             WHERE bikes.station_id=${row['station_id']}
-                             ORDER BY bikes.place_id`;
-                promises.push(pool.query(query).then(results => {
-                    if (results.rowCount == 0) {
-                        res.status(401).send(`No bikes of station_id ${row['station_id']} from database`);
-                    }
-                    else {
-                        response[row['station_id']-1]['bikes'] = results.rows;
-                    }
-                }));
-            }
-
-            for (const row of response) {
-                let query = `SELECT * 
-                             FROM station_reviews
-                             WHERE station_id=${row['station_id']}`
-                promises.push(pool.query(query).then(results => {
-                    if (results.rowCount == 0) {
-                        res.status(401).send(`No reviews of station_id ${row['station_id']} from database`);
-                    }
-                    else {
-                        response[row['station_id']-1]['reviews'] = results.rows;
-                    }
-                }));
-            }
-
-            Promise.all(promises).then(()=>{
-                console.log(response);
-                res.status(200).send(response);
-            })
-        }
-    }).catch(err => {
-        res.status(402).send("Error when accessing database: " + err);
-    });
-
-});
-
-app.get("/station/:id", (req,res) => {
-    res.setHeader('Content-Type', 'application/json');
-
-    let query = 'select * from bike_stations';
-
-    pool.query(query).then(result => {
-        if (result.rowCount == 0) {
-            res.status(401).send("No stations from database");
-        }
-        else {
-            var promises = []
-            var response = result.rows;
-            for (const row of response) {
-                let query = `SELECT place_number, place_id,name AS category 
-                             FROM parking_places JOIN bike_categories
-                             ON parking_places.category_id = bike_categories.category_id
-                             WHERE station_id=${row['station_id']}
-                             ORDER BY place_number`
-                promises.push(pool.query(query).then(results => {
-                    if (results.rowCount == 0) {
-                        res.status(401).send(`No parking place of station_id ${row['station_id']} from database`);
-                    }
-                    else {
-                        response[row['station_id']-1]['places'] = results.rows
-                    }
-                }));
-            }
-
-            for (const row of response) {
-                let query = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
-                                description, wheel_size,manufacturer, brakes_type,bike_categories.category_id as category_id, 
-                                bike_categories.name as category_name  
-                             FROM bikes NATURAL JOIN bike_models join bike_categories
-                             on bike_models.category_id = bike_categories.category_id 
-                             WHERE bikes.station_id=${row['station_id']}
-                             ORDER BY bikes.place_id`;
-                promises.push(pool.query(query).then(results => {
-                    if (results.rowCount == 0) {
-                        res.status(401).send(`No bikes of station_id ${row['station_id']} from database`);
-                    }
-                    else {
-                        response[row['station_id']-1]['bikes'] = results.rows;
-                    }
-                }));
-            }
-
-            for (const row of response) {
-                let query = `SELECT * 
-                             FROM station_reviews
-                             WHERE station_id=${row['station_id']}`
-                promises.push(pool.query(query).then(results => {
-                    if (results.rowCount == 0) {
-                        res.status(401).send(`No reviews of station_id ${row['station_id']} from database`);
-                    }
-                    else {
-                        response[row['station_id']-1]['reviews'] = results.rows;
-                    }
-                }));
-            }
-
-            Promise.all(promises).then(()=>{
-                console.log(response);
-                res.status(200).send(response[req.params.id - 1]);
-            })
-        }
-    }).catch(err => {
-        res.status(402).send("Error when accessing database: " + err);
-    });
-
-});
-        
-        
-        
-app.get("/categories", (req,res) => {
+        let i = 0;
+        for (const row of response) {
+            let query = `SELECT place_number, place_id, name AS category 
+            FROM parking_places JOIN bike_categories
+            ON parking_places.category_id = bike_categories.category_id
+            WHERE station_id=${row['station_id']}
+            ORDER BY place_number`;
             
-    res.setHeader('Content-Type', 'application/json');
-    
-    var query = `SELECT * FROM bike_categories`;
-    
-    pool.query(query).then(result => {
-        if (result.rowCount == 0) {
+            const results = await pool.query(query);
+            response[i]['places'] = results.rows;
+            i += 1;
+        }
+        
+        i = 0;
+        for (const row of response) {
+            let query = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
+            description, wheel_size, manufacturer, brakes_type, bike_categories.category_id as category_id, 
+            bike_categories.name as category_name  
+            FROM bikes NATURAL JOIN bike_models JOIN bike_categories
+            ON bike_models.category_id = bike_categories.category_id 
+            WHERE bikes.station_id=${row['station_id']}
+            ORDER BY bikes.place_id`;
+            
+            const results = await pool.query(query);
+            response[i]['bikes'] = results.rows;
+            i += 1;
+        }
+
+        i = 0;
+        for (const row of response) {
+            let query = `SELECT * 
+            FROM station_reviews
+            WHERE station_id=${row['station_id']}`;
+            
+            const results = await pool.query(query);
+            response[i]['reviews'] = results.rows;
+            i += 1
+        }
+        res.status(200).send(response);
+    } catch (err) {
+        res.status(402).send("Error when accessing database: " + err);
+    }
+});
+
+
+app.get("/station/:id", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'application/json');
+
+        let query = 'select * from bike_stations';
+        const result = await pool.query(query);
+
+        const promises = [];
+        const response = result.rows;
+
+        let i = 0;
+        for (const row of response) {
+            let query = `SELECT place_number, place_id, name AS category 
+                            FROM parking_places JOIN bike_categories
+                            ON parking_places.category_id = bike_categories.category_id
+                            WHERE station_id=${row['station_id']}
+                            ORDER BY place_number`;
+
+            const results = await pool.query(query);
+            response[i]['places'] = results.rows;
+            i += 1;
+        }
+
+        i = 0;
+        for (const row of response) {
+            let query = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
+                            description, wheel_size, manufacturer, brakes_type, bike_categories.category_id as category_id, 
+                            bike_categories.name as category_name  
+                            FROM bikes NATURAL JOIN bike_models JOIN bike_categories
+                            ON bike_models.category_id = bike_categories.category_id 
+                            WHERE bikes.station_id=${row['station_id']}
+                            ORDER BY bikes.place_id`;
+
+            const results = await pool.query(query);
+            response[i]['bikes'] = results.rows;
+            i += 1;
+        }
+
+        i = 0;
+        for (const row of response) {
+            let query = `SELECT * 
+                            FROM station_reviews
+                            WHERE station_id=${row['station_id']}`;
+
+            const results = await pool.query(query);
+            response[i]['reviews'] = results.rows;
+            i += 1;
+        }
+
+        res.status(200).send(response.filter(station => station.station_id == req.params.id)[0]);
+
+    } catch (err) {
+        res.status(402).send("Error when accessing database: " + err);
+    }
+});
+
+
+app.get("/categories", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'application/json');
+
+        const query = `SELECT * FROM bike_categories`;
+        const result = await pool.query(query);
+
+        if (result.rowCount === 0) {
             res.status(401).send("No categories retrieved");
+        } else {
+            res.status(200).send(result.rows);
+        }
+    } catch (err) {
+        res.status(402).send("Error when accessing database: " + err);
     }
-    else {
-        res.status(200).send(result.rows);
-    }
-    }).catch(err => {
-        res.status(402).send("Error when accessing database " + err);
-    });
-
-
 });
 
-app.get("/models", (req,res) => {
 
-    res.setHeader('Content-Type', 'application/json');
+app.get("/models", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'application/json');
 
-    var query = `SELECT * FROM bike_models`;
+        const query = `SELECT * FROM bike_models`;
+        const result = await pool.query(query);
 
-    pool.query(query).then(result => {
-        if (result.rowCount == 0) {
+        if (result.rowCount === 0) {
             res.status(401).send("No models retrieved");
-        }
-        else {
+        } else {
             res.status(200).send(result.rows);
         }
-    }).catch(err => {
-        res.status(402).send("Error when accessing database " + err);
-    });
+    } catch (err) {
+        res.status(402).send("Error when accessing database: " + err);
+    }
 });
 
-app.get("/bikes", (req,res) => {
 
-    res.setHeader('Content-Type', 'application/json');
+app.get("/bikes", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'application/json');
 
-    var query = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
-                    description, wheel_size,manufacturer, brakes_type,bike_categories.category_id as category_id, 
-                    bike_categories.name as category_name, bikes.station_id  
-                 FROM bikes NATURAL JOIN bike_models JOIN bike_categories
-                 ON bike_models.category_id = bike_categories.category_id 
-                 ORDER BY bikes.bike_id`;
-    //also add reviews for the bike model in a list 
-    //also add where it is parked: station id, place number from parking_places
-    pool.query(query).then(result => {
-        if (result.rowCount == 0) {
+        const query = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
+                        description, wheel_size, manufacturer, brakes_type, bike_categories.category_id as category_id, 
+                        bike_categories.name as category_name, bikes.station_id  
+                        FROM bikes NATURAL JOIN bike_models JOIN bike_categories
+                     ON bike_models.category_id = bike_categories.category_id 
+                     ORDER BY bikes.bike_id`;
+
+        const result = await pool.query(query);
+
+        if (result.rowCount === 0) {
             res.status(401).send("No bikes retrieved");
-        }
-        else {
-            var response = result.rows;
-            var promises = []
+        } else {
+            const response = result.rows;
+            const promises = [];
+
             for (const bike of response) {
-                let query = `SELECT customer_id,rating, review_text 
-                             FROM model_reviews
-                             WHERE model_id = ${bike['model_id']}`;
-                promises.push(pool.query(query).then(result => {
-                    bike['reviews'] = result.rows;
+                const reviewsQuery = `SELECT customer_id, rating, review_text 
+                                     FROM model_reviews
+                                     WHERE model_id = ${bike['model_id']}`;
+
+                promises.push(pool.query(reviewsQuery).then(reviewsResult => {
+                    bike['reviews'] = reviewsResult.rows;
                 }).catch(err => {
-                    res.status(402).send("Error when accessing database " + err);
+                    res.status(402).send("Error when accessing database: " + err);
                 }));
             }
 
-            Promise.all(promises).then(() => {
-                res.status(200).send(response);
-            });
+            await Promise.all(promises);
+
+            res.status(200).send(response);
         }
-    }).catch(err => {
-        res.status(402).send("Error when accessing database " + err);
-    });
-})
+    } catch (err) {
+        res.status(402).send("Error when accessing database: " + err);
+    }
+});
 
-app.get("/bike/:id", (req,res) => {
 
-    res.setHeader('Content-Type', 'application/json');
+app.get("/bike/:id", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'application/json');
 
-    var query = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
-                    description, wheel_size,manufacturer, brakes_type,bike_categories.category_id as category_id, 
-                    bike_categories.name as category_name, bikes.station_id  
-                 FROM bikes NATURAL JOIN bike_models JOIN bike_categories
-                 ON bike_models.category_id = bike_categories.category_id 
-                 WHERE bike_id=${req.params.id}
-                 ORDER BY bikes.bike_id`;
-    //also add reviews for the bike model in a list 
-    //also add where it is parked: station id, place number from parking_places
-    pool.query(query).then(result => {
-        if (result.rowCount == 0) {
+        const query = `SELECT bike_id, unique_id, bikes.place_number, status, model_id, bike_models.name as model_name, 
+            description, wheel_size, manufacturer, brakes_type, bike_categories.category_id as category_id, 
+            bike_categories.name as category_name, bikes.station_id  
+            FROM bikes NATURAL JOIN bike_models JOIN bike_categories
+            ON bike_models.category_id = bike_categories.category_id 
+            WHERE bike_id=${req.params.id}
+            ORDER BY bikes.bike_id`;
+
+        const result = await pool.query(query);
+
+        if (result.rowCount === 0) {
             res.status(401).send("No bikes retrieved");
-        }
-        else {
-            var response = result.rows;
-            var promises = []
+        } else {
+            const response = result.rows;
+            const promises = [];
+
             for (const bike of response) {
-                let query = `SELECT customer_id,rating, review_text 
-                             FROM model_reviews
-                             WHERE model_id = ${bike['model_id']}`;
-                promises.push(pool.query(query).then(result => {
-                    bike['reviews'] = result.rows;
+                const reviewsQuery = `SELECT customer_id, rating, review_text 
+                                     FROM model_reviews
+                                     WHERE model_id = ${bike['model_id']}`;
+
+                promises.push(pool.query(reviewsQuery).then(reviewsResult => {
+                    bike['reviews'] = reviewsResult.rows;
                 }).catch(err => {
-                    res.status(402).send("Error when accessing database " + err);
+                    res.status(402).send("Error when accessing database: " + err);
                 }));
             }
 
-            Promise.all(promises).then(() => {
-                res.status(200).send(response);
-            });
+            await Promise.all(promises);
+
+            res.status(200).send(response);
         }
-    }).catch(err => {
-        res.status(402).send("Error when accessing database " + err);
-    });
-
-})
-
+    } catch (err) {
+        res.status(402).send("Error when accessing database: " + err);
+    }
+});
 
 
-app.get("/model_reviews", (req,res) => {
+app.get("/model_reviews", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'application/json');
 
-    res.setHeader('Content-Type', 'application/json');
+        const query = `SELECT * FROM model_reviews`;
+        const result = await pool.query(query);
 
-    var query = `SELECT * FROM model_reviews`;
-
-    pool.query(query).then(result => {
-        if (result.rowCount == 0) {
+        if (result.rowCount === 0) {
             res.status(401).send("No reviews retrieved");
-        }
-        else {
+        } else {
             res.status(200).send(result.rows);
         }
-    }).catch(err => {
-        res.status(402).send("Error when accessing database " + err);
-    });
-
-})
+    } catch (err) {
+        res.status(402).send("Error when accessing database: " + err);
+    }
+});
 
 //#endregion
 
 //API for updating database
 //STATION
 //#region 
-app.post("/station", (req, res) => {
-    res.setHeader('Content-Type', 'text/html');
+app.post("/station", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
 
-    stat = req.body;
-    
-    var query = `INSERT INTO bike_stations(name,address,city,latitude,longitude,places_taken,places_all)
-                 VALUES ('${stat.name}','${stat.address}','${stat.city}',${stat.latitude},${stat.longitude},0,${stat.places_all})`
+        const stat = req.body;
 
-    pool.query(query).then(results => {
-        if (results.rowCount == 0) {
+        const insertStationQuery = `INSERT INTO bike_stations(name, address, city, latitude, longitude, places_taken, places_all)
+                                    VALUES ('${stat.name}', '${stat.address}', '${stat.city}', ${stat.latitude}, ${stat.longitude}, 0, ${stat.places_all})`;
+
+        const stationResults = await pool.query(insertStationQuery);
+
+        if (stationResults.rowCount === 0) {
             res.status(401).send("No row added");
-        }
-        else {
-            // res.status(200).send("Row added");
-            query = `SELECT * from bike_stations WHERE name='${stat.name}'`;
-            pool.query(query).then(result => {
-                var station = result.rows[0];
-                console.log(station);
-                var places_done = 0;
+        } else {
+            // inserting parking places
+            const selectStationQuery = `SELECT * FROM bike_stations WHERE name='${stat.name}'`;
+            const stationResult = await pool.query(selectStationQuery);
+            const station = stationResult.rows[0];
+            console.log(station);
+            let placesDone = 0;
 
-                for (const place of stat.places) {
-                    console.log(place);
-                    for (let index = 0; index < place.place_num; index++) {
-                        let query = `INSERT INTO parking_places(station_id,place_number,category_id)
-                                     VALUES (${station.station_id},${places_done},${place.category})` 
-                        console.log(query);
-                        pool.query(query).then(result => {
-                            if (result.rowCount == 0) {
-                                console.log("Failed to create parking place");
-                            }
-                            else {
-                                console.log(`Num: ${places_done} --parking place created`);
-                            }
-                        }).catch(err => {
-                            console.error("Error when accessing database: " + err);
-                            res.status(402).send("Error when accessing database: " + err);
-                        });
-                        places_done++;
-                    }
+            for (const place of stat.places) {
+                console.log(place);
+                for (let index = 0; index < place.place_num; index++) {
+                    const insertPlaceQuery = `INSERT INTO parking_places(station_id, place_number, category_id)
+                                              VALUES (${station.station_id}, ${placesDone}, ${place.category})`;
+
+                    console.log(insertPlaceQuery);
+                    await pool.query(insertPlaceQuery);
+
+                    console.log(`Num: ${placesDone} --parking place created`);
+                    placesDone++;
                 }
-                res.status(200).send("Station created");
-            })
+            }
+            res.status(200).send("Station created");
         }
-    }).catch(err => {
+    } catch (err) {
         console.error("Error when accessing database: " + err);
         res.status(402).send("Error when accessing database: " + err);
-    });
-
-
-});
-
-app.put("/station", (req, res) => {
-    res.setHeader('Content-Type', 'text/html');
-
-    var stat = req.body;
-
-    var stat_id = stat.station_id;
-
-    for (const key in stat) {
-        if (key=="station_id") continue;
-        if (stat.hasOwnProperty(key)) {
-            const value = stat[key];
-            var query = `;`
-            if (typeof value === 'string') {
-                query = `UPDATE bike_stations
-                         SET ${key}='${value}'
-                         WHERE station_id=${stat_id}`;
-            }
-            else {
-                query = `UPDATE bike_stations
-                         SET ${key}=${value}
-                         WHERE station_id=${stat_id}`;
-            }
-            console.log(query);
-            
-            pool.query(query).then(results => {
-                if (results.rowCount == 0) {
-                    res.status(401).send("No Update");
-                }
-                else {
-                    console.log(query);
-                }
-            }).catch(err => {
-                res.status(402).send("Error when accessing database: " + err);
-            });
-        }
     }
-
-    res.status(200).send("Updated");
-
 });
 
 
-app.delete("/station", (req, res) => {
-    res.setHeader('Content-Type', 'text/html');
+app.put("/station", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
 
-    var stat = req.body;
+        const stat = req.body;
+        const statId = stat.station_id;
 
-    var stat_id = stat.station_id;
+        for (const key in stat) {
+            if (key === "station_id") continue;
+            if (stat.hasOwnProperty(key)) {
+                const value = stat[key];
+                let query = ';';
 
-    //set the bikes' status that used the parking places to wild
-
-
-    var query = `DELETE FROM parking_places WHERE station_id=${stat_id}`;
-
-    pool.query(query).then(results => {
-        if (results.rowCount == 0) {
-            res.status(401).send("No row deleted from parking_places");
-        }
-        else {
-            let query = `DELETE FROM bike_stations WHERE station_id=${stat_id}`;
-            pool.query(query).then(results => {
-                if (results.rowCount == 0) {
-                    res.status(401).send("No row deleted from bike_stations");
+                if (typeof value === 'string') {
+                    query = `UPDATE bike_stations
+                             SET ${key}='${value}'
+                             WHERE station_id=${statId}`;
+                } else {
+                    query = `UPDATE bike_stations
+                             SET ${key}=${value}
+                             WHERE station_id=${statId}`;
                 }
-                else {
-                    res.status(200).send("Deleted");
+
+                console.log(query);
+
+                const results = await pool.query(query);
+
+                if (results.rowCount === 0) {
+                    res.status(401).send("No Update");
+                } else {
+                    console.log(`Updated ${key}`);
                 }
-            }).catch(err => {
-                console.error("Error when accessing database: " + err);
-                res.status(402).send("Error when accessing database: " + err);
-            });
+            }
         }
-    }).catch(err => {
+
+        res.status(200).send("Updated");
+    } catch (err) {
         console.error("Error when accessing database: " + err);
         res.status(402).send("Error when accessing database: " + err);
-    });
+    }
 });
 
+
+app.delete("/station", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
+
+        const stat = req.body;
+        const statId = stat.station_id;
+
+        const updateBikesQuery = `UPDATE bikes SET status='wild', station_id=NULL, place_id=NULL WHERE station_id=${statId}`;
+        const bikesResults = await pool.query(updateBikesQuery);
+
+        const deletePlacesQuery = `DELETE FROM parking_places WHERE station_id=${statId}`;
+        const placesResults = await pool.query(deletePlacesQuery);
+        
+        const deleteReviewsQuery = `DELETE FROM station_reviews WHERE station_id=${statId}`;
+        const reviewsResults = await pool.query(deleteReviewsQuery);
+
+        const deleteStationQuery = `DELETE FROM bike_stations WHERE station_id=${statId}`;
+        const stationResults = await pool.query(deleteStationQuery);
+    
+        res.status(200).send("Deleted");
+
+    } catch (err) {
+        console.error("Error when accessing database: " + err);
+        res.status(402).send("Error when accessing database: " + err);
+    }
+});
 //#endregion
 
 //BIKE CATEGORIES
 //#region 
+app.post("/category", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
 
-app.post("/category", (req, res) => {
-    res.setHeader('Content-Type', 'text/html');
-    
-    category = req.body;
-    console.log(category.name);
-    
-    var query = `INSERT INTO bike_categories(name)
-                 VALUES ('${category.name}')`
+        const category = req.body;
 
-    pool.query(query).then(results => {
-        if (results.rowCount == 0) {
+        const query = `INSERT INTO bike_categories(name)
+                       VALUES ('${category.name}')`;
+
+        const results = await pool.query(query);
+
+        if (results.rowCount === 0) {
             res.status(401).send("No row added");
-        }
-        else {
+        } else {
             res.status(200).send("Row added");
         }
-    }).catch(err => {
+    } catch (err) {
         res.status(402).send("Error when accessing database: " + err);
-    });
-
+    }
 });
 
-app.put("/category", (req,res) => {
-    console.log(req.body);
-    res.setHeader('Content-Type', 'text/html');
+app.put("/category", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
 
-    category = req.body;
-    
-    var query = `UPDATE bike_categories 
-                 SET name='${category.name}'
-                 WHERE category_id=${category.id} `
+        const category = req.body;
 
-    pool.query(query).then(results => {
-        if (results.rowCount == 0) {
+        const query = `UPDATE bike_categories 
+                       SET name='${category.name}'
+                       WHERE category_id=${category.id} `;
+
+        const results = await pool.query(query);
+
+        if (results.rowCount === 0) {
             res.status(401).send("No Update");
-        }
-        else {
+        } else {
             res.status(200).send("Updated");
         }
-    }).catch(err => {
+    } catch (err) {
         console.error("Error when accessing database: " + err);
         res.status(402).send("Error when accessing database: " + err);
-    });
+    }
 });
 
-app.delete("/category", (req,res) => {
-    res.setHeader('Content-Type', 'text/html');
+app.delete("/category", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
 
-    category = req.body;
+        const category = req.body;
 
+        //UPDATE STATION (places_taken - deletebikeResponse rowcount?)
+        
+        const bikeDeleteQuery = `DELETE FROM bikes 
+        WHERE model_id IN (SELECT DISTINCT model_id FROM bike_models WHERE category_id=${category.id})`;
+        const bikeDeleteResponse = await pool.query(bikeDeleteQuery);
+        
+        
+        //For updating the station parking places counter
+        const parkingPlaceGrabQuery = `SELECT * FROM parking_places
+        WHERE category_id=${category.id}`;
 
-    //DELETE ALL MODELS FIRST, THE BIKES, THE PARKING_PLACE CONNECTIONS
+        const parkingPlaceGrabResponse = await pool.query(parkingPlaceGrabQuery);
 
-    var query = `DELETE FROM bike_categories 
-                 WHERE category_id=${category.id} `
-
-    pool.query(query).then(results => {
-        if (results.rowCount == 0) {
-            res.status(401).send("No Delete");
+        for (const place of parkingPlaceGrabResponse.rows) {
+            let decreasePlacesQuery = `UPDATE bike_stations 
+            SET places_taken=places_taken - 1
+            WHERE station_id=${place['station_id']}`;
+            const decreasePlacesResponse = await pool.query(decreasePlacesQuery);
         }
-        else {
-            res.status(200).send("Deleted row");
-        }
-    }).catch(err => {
+
+        
+        const parkingPlaceDeleteQuery = `DELETE FROM parking_places
+        WHERE category_id=${category.id}`;
+        const parkingPlaceDeleteResponse = await pool.query(parkingPlaceDeleteQuery);
+        
+        const reviewDeleteQuery = `DELETE FROM model_reviews 
+        WHERE model_id IN (SELECT DISTINCT model_id FROM bike_models WHERE category_id=${category.id})`;
+        const reviewDeleteResponse = await pool.query(reviewDeleteQuery);
+
+        const modelDeleteQuery = `DELETE FROM bike_models 
+        WHERE category_id=${category.id}`;
+        const modelDeleteResponse = await pool.query(modelDeleteQuery);
+        
+        const categoryDeleteQuery = `DELETE FROM bike_categories 
+        WHERE category_id=${category.id}`;
+        const categoryDeleteResponse = await pool.query(categoryDeleteQuery);
+
+        res.status(200).send("Deleted Category");
+    } catch (err) {
         console.error("Error when accessing database: " + err);
         res.status(402).send("Error when accessing database: " + err);
-    });
+    }
 });
-
 //#endregion
 
 //BIKE MODELS
 //#region 
+app.post("/model", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
 
-app.post("/model", (req,res) => {
-    res.setHeader('Content-Type', 'text/html');
-    
-    model = req.body;
-    
-    //must check if category exists
-    console.log("Adding Model: " + model.name);
-    
-    let query = `INSERT INTO bike_models(category_id,name,description,wheel_size,manufacturer,brakes_type)
-    VALUES(${model.category_id}, '${model.name}','${model.description}', ${model.wheel_size}, '${model.manufacturer}', '${model.brakes_type}')`
-    
-    pool.query(query).then(results => {
-        if (results.rowCount == 0) {
+        const model = req.body;
+
+        console.log("Adding Model: " + model.name);
+
+        const query = `INSERT INTO bike_models(category_id, name, description, wheel_size, manufacturer, brakes_type)
+                       VALUES(${model.category_id}, '${model.name}', '${model.description}', ${model.wheel_size}, '${model.manufacturer}', '${model.brakes_type}')`;
+
+        const results = await pool.query(query);
+
+        if (results.rowCount === 0) {
             res.status(401).send("No Creation");
-        }
-        else {
+        } else {
             res.status(200).send("Created");
         }
-    }).catch(err => {
+    } catch (err) {
         res.status(402).send("Error when accessing database: " + err);
-    });
-    
+    }
 });
 
-app.put("/model", (req,res) => {
-    console.log("Adatok: " + req.body.model_id + " " + req.body.name);
-    res.setHeader('Content-Type', 'text/html');
-    
-    var model = req.body;
-    
-    var model_id = model.model_id;
-    
-    for (const key in model) {
-        if (key=="model_id") continue;
-        if (model.hasOwnProperty(key)) {
-            const value = model[key];
-            var query = ``;
-            if(typeof value === 'string') {
-                query = `UPDATE bike_models
-                SET ${key}='${value}'
-                WHERE model_id=${model_id}`;
-                
-            }
-            else {
-                query = `UPDATE bike_models
-                SET ${key}=${value}
-                WHERE model_id=${model_id}`;
-            }
-            
-            console.log(query);
-            pool.query(query).then(results => {
-                if (results.rowCount == 0) {
-                    res.status(401).send("No Update");
+app.put("/model", async (req, res) => {
+    try {
+        console.log("Data: " + req.body.model_id + " " + req.body.name);
+        res.setHeader('Content-Type', 'text/html');
+
+        const model = req.body;
+        const modelId = model.model_id;
+
+        for (const key in model) {
+            if (key === "model_id") continue;
+            if (model.hasOwnProperty(key)) {
+                const value = model[key];
+                let query = ``;
+
+                if (typeof value === 'string') {
+                    query = `UPDATE bike_models
+                             SET ${key}='${value}'
+                             WHERE model_id=${modelId}`;
+                } else {
+                    query = `UPDATE bike_models
+                             SET ${key}=${value}
+                             WHERE model_id=${modelId}`;
                 }
-                else {
+
+                console.log(query);
+
+                const results = await pool.query(query);
+
+                if (results.rowCount === 0) {
+                    res.status(401).send("No Update");
+                } else {
                     console.log(`Updated ${key}`);
                 }
-            }).catch(err => {
-                res.status(402).send("Error when accessing database: " + err);
-            });
+            }
         }
+
+        res.status(200).send("Updated");
+    } catch (err) {
+        res.status(402).send("Error when accessing database: " + err);
     }
-    
-    res.status(200).send("Updated");
-    
-    
 });
 
-app.delete("/model", (req,res) => {
-    res.setHeader('Content-Type', 'text/html');
-    
-    //delete all bikes for the model
-    
-    var model_id = req.body.model_id; 
-    
-    
-    var query = `DELETE FROM bike_models WHERE model_id=${model_id}`;
-    
-    pool.query(query).then(results => {
-        if (results.rowCount == 0) {
-            res.status(401).send("No Delete");
+app.delete("/model", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
+
+        const deleteReviewsQuery = `DELETE FROM model_reviews WHERE model_id=${req.body.model_id}`;
+        await pool.query(deleteReviewsQuery);
+
+        //For updating the station parking places counter
+        const bikeGrabQuery = `SELECT * FROM bikes
+        WHERE model_id=${req.body.model_id}`;
+
+        const bikeGrabResponse = await pool.query(bikeGrabQuery);
+
+        for (const bike of bikeGrabResponse.rows) {
+            let decreasePlacesQuery = `UPDATE bike_stations 
+            SET places_taken=places_taken - 1
+            WHERE station_id=${bike['station_id']}`;
+            const decreasePlacesResponse = await pool.query(decreasePlacesQuery);
         }
-        else {
-            res.status(200).send("Deleted");
-        }
-    }).catch(err => {
+
+
+        const deleteBikesQuery = `DELETE FROM bikes WHERE model_id=${req.body.model_id}`;
+        await pool.query(deleteBikesQuery);
+
+        const deleteModelQuery = `DELETE FROM bike_models WHERE model_id=${req.body.model_id}`;
+        const results = await pool.query(deleteModelQuery);
+
+        res.status(200).send("Deleted");
+
+    } catch (err) {
         console.error("Error when accessing database: " + err);
         res.status(402).send("Error when accessing database: " + err);
-    });
-    
+    }
 });
-
 //#endregion
 
 //BIKES
 //#region 
+app.post("/bike", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
 
-app.post("/bike", (req,res) => {
-    res.setHeader('Content-Type', 'text/html');
+        const bike = req.body;
+        // Originally it is not assigned to any station-place
+        const query = `INSERT INTO bikes(model_id, unique_id, station_id, place_id, place_number, status)
+                       VALUES(${bike.model_id}, '${bike.unique_id}', NULL, NULL, -1, 'wild')`;
 
-    var bike = req.body;
-    //originally it is not assigned to any station-place
-    var query = `INSERT INTO bikes(model_id,unique_id,station_id,place_id,place_number,status)
-                 VALUES(${bike.model_id},'${bike.unique_id}', NULL, NULL, -1, 'wild')`; 
-    pool.query(query).then(results => {
-        if (results.rowCount == 0) {
+        const results = await pool.query(query);
+
+        if (results.rowCount === 0) {
             res.status(401).send("No Creation");
-        }
-        else {
+        } else {
             res.status(200).send("Created");
         }
-    }).catch(err => {
+    } catch (err) {
         res.status(402).send("Error when accessing database: " + err);
-    });
-    
-
-
+    }
 });
 
 
-app.put("/bike", (req,res) => {
-    res.setHeader('Content-Type', 'text/html');
+app.put("/bike", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
 
-    var bike = req.body;
-    
-    var bike_id = bike.bike_id;
-    
-    for (const key in bike) {
-        if (key=="bike_id") continue;
-        if (bike.hasOwnProperty(key)) {
-            const value = bike[key];
-            var query = ``;
-            if(typeof value === 'string') {
-                query = `UPDATE bikes
-                SET ${key}='${value}'
-                WHERE bike_id=${bike_id}`;
+        const bike = req.body;
+        const bikeId = bike.bike_id;
+
+        for (const key in bike) {
+            if (key === "bike_id") continue;
+            if (bike.hasOwnProperty(key)) {
+                const value = bike[key];
+                let query = ``;
                 
-            }
-            else {
-                query = `UPDATE bikes
-                SET ${key}=${value}
-                WHERE bike_id=${bike_id}`;
-            }
-            
-            console.log(query);
-            pool.query(query).then(results => {
-                if (results.rowCount == 0) {
-                    res.status(401).send("No Update");
+                //How should this section be handled by frontend-backend
+                if (key === "status") {
+                    if (value === "wild") { //changingto wild
+
+                        console.log("to wild");
+                        const stationQuery = `UPDATE bike_stations 
+                        SET places_taken=places_taken - 1
+                        WHERE station_id IN (
+                        SELECT station_id FROM bikes WHERE bike_id = ${bike['bike_id']})`;
+                        const stationResponse = await pool.query(stationQuery);
+                    } else { //changing to parked
+                        console.log("to parked");
+                    }
                 }
-                else {
+
+                if (typeof value === 'string') {
+                    query = `UPDATE bikes
+                             SET ${key}='${value}'
+                             WHERE bike_id=${bikeId}`;
+                } else {
+                    query = `UPDATE bikes
+                             SET ${key}=${value}
+                             WHERE bike_id=${bikeId}`;
+                }
+
+                console.log(query);
+
+                const results = await pool.query(query);
+
+                if (results.rowCount === 0) {
+                    res.status(401).send("No Update");
+                } else {
                     console.log(`Updated ${key}`);
                 }
-            }).catch(err => {
-                res.status(402).send("Error when accessing database: " + err);
-            });
+            }
         }
+
+        res.status(200).send("Updated");
+    } catch (err) {
+        res.status(402).send("Error when accessing database: " + err);
     }
-    
-    res.status(200).send("Updated");
-
-
 });
 
-app.delete("/bike", (req,res) => {
-    res.setHeader('Content-Type', 'text/html');
+app.delete("/bike", async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
 
-    var bike_id = req.body.bike_id;
+        const bikeId = req.body.bike_id;
 
-    //Also delete them from parking_places_bikes connection table
-    //also update station properties
-    var query = `DELETE FROM bikes WHERE bike_id=${bike_id}`;
-    
-    pool.query(query).then(results => {
-        if (results.rowCount == 0) {
+        // Also update station properties, reduce places taken
+
+        const query = `DELETE FROM bikes WHERE bike_id=${bikeId}`;
+
+        const results = await pool.query(query);
+
+        if (results.rowCount === 0) {
             res.status(401).send("No Delete");
-        }
-        else {
+        } else {
             res.status(200).send("Deleted");
         }
-    }).catch(err => {
+    } catch (err) {
         res.status(402).send("Error when accessing database: " + err);
-    });
-    
+    }
 });
-
 //#endregion
+
 
 
 let port = 3000;
