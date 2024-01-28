@@ -4,5 +4,9 @@
         "user": "postgres",
         "password": "Imagine",
         "db": "Webtechproject" 
+    },
+    "auth": {
+        "jwt_key": "secret",
+        "expiration": "1m"
     }
 }

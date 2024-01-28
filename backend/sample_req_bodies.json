@@ -56,6 +56,13 @@
     "unique_id":"SAnew"
 }
 
+//bike assing to station
+{
+    "bike_id": 31,
+    "station_id": 1,
+    "place_number": 1 
+}
+
 // model review
 {
     "model_id": 2,
