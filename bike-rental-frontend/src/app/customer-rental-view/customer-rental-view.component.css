@@ -8,3 +8,88 @@
     height: 100%;
   }
   
+  .hidden {
+    display: none;
+  }
+
+  .station-list {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .station-item {
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    padding: 10px;
+    border-radius: 5px;
+  }
+  
+  .station-info h3 {
+    margin: 0;
+    color: #333;
+  }
+  
+  .station-info p {
+    margin: 5px 0;
+    color: #666;
+  }
+  
+  .station-actions button {
+    margin-right: 10px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .station-actions button:hover {
+    background-color: #ddd;
+  }
+
+  .station-details {
+    border: 1px solid #ccc;
+    padding: 10px;
+    border-radius: 5px;
+    margin-top: 20px;
+  }
+  
+  .station-details h3, .station-details h4 {
+    margin: 10px 0;
+  }
+  
+  .parking-places ul, .station-reviews div {
+    margin-left: 20px;
+  }
+  
+  .station-reviews p {
+    background-color: #f0f0f0;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  
+  .station-details button {
+    margin-top: 10px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .station-details button:hover {
+    background-color: #ddd;
+  }
+
+.navigation button {
+    margin-right: 10px;
+    margin-left: 1px;
+    margin-bottom: 8px;
+    margin-top: 8px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: large;
+    font-weight: bold;
+  }
+  
+  
