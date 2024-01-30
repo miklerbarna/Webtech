@@ -158,13 +158,14 @@ export class BikeManagementComponent implements OnInit {
       const currentValue = selectedBike[prop];
       const newValue = prompt(`Edit ${prop}:`, currentValue);
 
-      if (newValue !== null && newValue !== currentValue) {
+      if (newValue !== null) {
         updatedModel[prop] = newValue;
       }
     });
 
     // Check if the model has been updated
     if (JSON.stringify(selectedBike) !== JSON.stringify(updatedModel)) {
+      console.log(updatedModel['status']);
       
       // Call service to update the model on the backend
       this.bikeService.editBike(updatedModel).subscribe(

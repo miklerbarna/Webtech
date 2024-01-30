@@ -99,9 +99,9 @@ CREATE TABLE station_reviews (
 ------------------------------------NOT YET NEEDED------------------------------------
 
 INSERT INTO bike_stations(name, address, city, latitude, longitude,places_taken, places_all) VALUES
-('Station A', '123 Main St', 'Cityville', 40.7128, -74.006, 10,	10),
-('Station B', '456 Elm St', 'Townsville', 35.6895, 139.6917, 10, 10),
-('Station C', '789 Oak St', 'Villageton', 51.5074, -0.1278,	10, 10);
+('University', 'Nautilusweg 12', 'Klagenfurt', 46.617355, 14.267452, 10, 10),
+('Central Station', 'Heiligengeistplatz', 'Klagenfurt', 46.624671, 14.305105, 10, 10),
+('Strandbad', 'Metnitzstrand 2', 'Klagenfurt', 46.619830, 14.255940, 10, 10);
 
 INSERT INTO bike_categories(name) VALUES
 ('electric'),

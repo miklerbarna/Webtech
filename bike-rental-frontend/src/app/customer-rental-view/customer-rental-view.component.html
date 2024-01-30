@@ -1,3 +1,41 @@
 <div class="map-container">
     <div id="map"></div>
 </div>
+<div *ngIf="selectedStation" class="station-details">
+    <button (click)="selectedStation = null">Close Details</button>
+    <h3>Station Details: {{ selectedStation.name }}</h3>
+    <p>Station ID: #{{ selectedStation.station_id }}</p>
+    <p>Address: {{ selectedStation.address }}</p>
+    <p>Coordinates: {{ selectedStation.latitude }}, {{ selectedStation.longitude }}</p>
+    <div class="station-actions">
+      <button (click)="editStation(selectedStation)">Edit</button>
+      <button (click)="deleteStation()">Delete</button>
+    </div>
+
+    <div class="parked-bikes">
+      <h4>Parked Bikes:</h4>
+      <ul>
+        <li *ngFor="let bike of selectedStation.bikes">
+          Place #{{ bike.place_number }}: {{ bike.model_name }} #{{bike.bike_id}} - (Category: {{ bike.category_name }})
+        </li>
+      </ul>
+    </div>
+
+    <div class="parking-places">
+      <h4>Parking Places:</h4>
+      <ul>
+        <li *ngFor="let place of selectedStation.places">
+          Place #{{ place.place_number }}: (Category: {{ place.category }})
+        </li>
+      </ul>
+      <p>Total / Occupied places: {{selectedStation.places_all}} / {{selectedStation.places_taken}}</p>
+    </div>
+    
+    <div class="station-reviews">
+      <h4>Customer Reviews:</h4>
+      <div *ngFor="let review of selectedStation.reviews">
+        <p><strong>User {{ review.customer_id }}:</strong> {{ review.review_text }} (Rating: {{ review.rating }}/5)</p>
+      </div>
+    </div>
+    
+</div>
