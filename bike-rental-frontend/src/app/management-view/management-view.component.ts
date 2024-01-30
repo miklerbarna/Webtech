@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 export class ManagementViewComponent implements OnInit {
   bikeStations: any[] = [];
   selectedStation: any = null;
+  categories: any[] = [];
 
   constructor(
     private router: Router,
@@ -21,6 +22,7 @@ export class ManagementViewComponent implements OnInit {
 
     ngOnInit(): void {
       this.refreshStations();
+      this.refreshCategories();
     }
   
     refreshStations(): Promise<void>{
@@ -60,10 +62,12 @@ export class ManagementViewComponent implements OnInit {
         response => {
           console.log('Station deleted successfully', response);
           this.refreshStations();
+          this.selectedStation = null;
         },
         error => {
           console.error('Error deleting Station', error);
           this.refreshStations();
+          this.selectedStation = null;
         }
       );
       
@@ -107,18 +111,23 @@ export class ManagementViewComponent implements OnInit {
   }
 
   createNewStation() : void{
+    this.refreshCategories();
     let newStation: {[key: string]: any} = {}; //Legyen egy üres szótár
 
     // Define the properties to be edited
-    const propertiesToAdd = ['name', 'address', 'city', 'latitude', 'longitude', 'places_all'];
+    const propertiesToAdd = ['name', 'address', 'city', 'latitude', 'longitude'];
 
     newStation['places'] = [
       {
-          "category": "universal"
+          "category": 1,
+          "place_num" : 3
       },
       {
-          "category": "universal"
+          "category": 2,
+          "place_num" : 0
       }];
+
+    newStation['places_all'] = 3;
 
     propertiesToAdd.forEach(prop => {
       const newValue = prompt(`Enter ${prop} for the new Station:`);
@@ -127,13 +136,38 @@ export class ManagementViewComponent implements OnInit {
       }
     });
 
+    newStation['places'] = [];
+    let sum_of_places = 0;
+    //Ask for number of places for every category:
+    this.categories.forEach(category => {
+      const newValue = prompt(`Enter number of places for ${category.name} category for the new Station:`);
+      if (newValue !== null) {
+        // Parse the input to ensure it's treated as a number
+        const place_num = parseInt(newValue);
+        // Check if the parse was successful and the number is not NaN
+        if (!isNaN(place_num) && 1 <= place_num) {
+          // Add the new object to the places list
+          sum_of_places += place_num;
+          newStation['places'].push({
+            "category": category.category_id,
+            "place_num": place_num
+          });
+        } else {
+          alert("Invalid number entered, skipping this category.");
+        }
+      }
+    });
+    newStation['places_all'] = sum_of_places; //Kategoriankent összeadva minden
+
     // Call service to update the model on the backend
     this.bikeStationService.addBikeStation(newStation).subscribe(
       response => {
-        console.log('Bike added successfully', response);
+        console.log('Bike Station added successfully', response);
+        this.refreshStations();
       },
       error => {
-        console.error('Error adding Bike', error);
+        console.error('Error adding Bike Station', error);
+        this.refreshStations();
       }
     );
   }
@@ -144,6 +178,20 @@ export class ManagementViewComponent implements OnInit {
 
   navigateToBikes(): void {
     this.router.navigate(['/bikes']);
+  }
+
+  refreshCategories(): void{
+    this.bikeStationService.getCategories().subscribe(categories => {
+      this.categories = categories.sort((a, b) => {
+        // Sort by category
+        if (a.name < b.name) return -1;
+        if (a.name >= b.name) return 1;
+        return 0;
+      });;
+    }, error => {
+      console.error('Error fetching bike categories:', error);
+    });
+      
   }
   
 }

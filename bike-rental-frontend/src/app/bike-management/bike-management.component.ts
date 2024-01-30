@@ -339,6 +339,7 @@ export class BikeManagementComponent implements OnInit {
         error => {
           console.error('Model deleting bike', error);
           this.refreshModels();
+          this.refreshBikes();
         }
       );
     }

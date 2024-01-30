@@ -13,6 +13,7 @@ export class BikeStationService {
   private baseServerURL = "http://localhost";
   private getAllStationsURL = this.baseServerURL + ':3000/stations';
   private stationURL = this.baseServerURL + ':3000/station';
+  private getAllCategoriesURL = this.baseServerURL + ':3000/categories';
 
   constructor(private http: HttpClient) { }
 
@@ -43,6 +44,9 @@ export class BikeStationService {
     return this.http.delete(this.stationURL, httpOptions);
   }
   
+  getCategories(): Observable<any[]> {
+    return this.http.get<any[]>(this.getAllCategoriesURL);
+  }
   
 
 }
