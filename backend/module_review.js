@@ -3,8 +3,10 @@ const express = require('express');
 const router = express.Router();
 
 const pool = require('./pool.js');
+const checkAdminAuth = require('./authenticator_admin.js');
 
-router.post("/model", async (req,res) => {
+
+router.post("/model", checkAdminAuth, async (req,res) => {
     try {
         res.setHeader('Content-Type', 'text/html');
 
@@ -21,7 +23,7 @@ router.post("/model", async (req,res) => {
 
 });
 
-router.post("/station", async (req,res) => {
+router.post("/station", checkAdminAuth, async (req,res) => {
     try {
         res.setHeader('Content-Type', 'text/html');
 

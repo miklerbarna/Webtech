@@ -61,6 +61,8 @@ router.post('/', async (req, res) => {
     }
 });
 
+
+//Dummy routers to test authenticators
 router.get("/tryuser", checkUserAuth, (req,res) => {
     res.setHeader('Content-Type', 'text/html');
     res.status(200).send("Authenticated User");

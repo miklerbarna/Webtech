@@ -15,6 +15,9 @@ let bodyParser = require('body-parser');
 app.use(bodyParser.json()); 
 
 
+const checkUserAuth = require('./authenticator_user.js');
+
+
 const stationRouter = require('./module_station.js');
 app.use('/station', stationRouter);
 
@@ -44,7 +47,7 @@ app.get("/", (req, res) => {
 
 
 //GET REQUESTS, API for sending data
-app.get("/stations", async (req, res) => {
+app.get("/stations", checkUserAuth, async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/json');
         
@@ -100,7 +103,7 @@ app.get("/stations", async (req, res) => {
 });
 
 
-app.get("/station/:id", async (req, res) => {
+app.get("/station/:id", checkUserAuth, async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/json');
         
@@ -156,7 +159,7 @@ app.get("/station/:id", async (req, res) => {
 });
 
 
-app.get("/categories", async (req, res) => {
+app.get("/categories", checkUserAuth, async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/json');
 
@@ -171,7 +174,7 @@ app.get("/categories", async (req, res) => {
 });
 
 
-app.get("/models", async (req, res) => {
+app.get("/models", checkUserAuth, async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/json');
 
@@ -186,7 +189,7 @@ app.get("/models", async (req, res) => {
 });
 
 
-app.get("/bikes", async (req, res) => {
+app.get("/bikes", checkUserAuth, async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/json');
 
@@ -224,7 +227,7 @@ app.get("/bikes", async (req, res) => {
 });
 
 
-app.get("/bike/:id", async (req, res) => {
+app.get("/bike/:id", checkUserAuth, async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/json');
 
@@ -263,7 +266,7 @@ app.get("/bike/:id", async (req, res) => {
 });
 
 
-app.get("/model_reviews", async (req, res) => {
+app.get("/model_reviews", checkUserAuth, async (req, res) => {
     try {
         res.setHeader('Content-Type', 'application/json');
 
