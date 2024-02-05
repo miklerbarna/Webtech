@@ -5,8 +5,12 @@
         "password": "Imagine",
         "db": "Webtechproject" 
     },
-    "auth": {
+    "auth_user": {
         "jwt_key": "secret",
-        "expiration": "1m"
+        "expiration": "10m"
+    },
+    "auth_admin": {
+        "jwt_key": "admin",
+        "expiration": "10m"
     }
 }

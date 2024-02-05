@@ -62,6 +62,7 @@ CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
+    status VARCHAR(10),
     wallet_balance DECIMAL(10, 2) DEFAULT 0.0
 );
 
@@ -181,10 +182,11 @@ INSERT INTO bikes(model_id, unique_id, station_id, place_id, place_number, statu
 (4,	'CH9',	3,24,4, 'parked'),
 (4,	'CH10',	3,25,5, 'parked');
 
-INSERT INTO users(email, password, wallet_balance) VALUES
-('user1@example.com', 'password1', 0.00),
-('user2@example.com', 'password2', 0.00),
-('user3@example.com', 'password3', 0.00);
+INSERT INTO users(email, password, status, wallet_balance) VALUES
+('admin@example.com', 'adminpassword', 'admin', 0.00),
+('user1@example.com', 'password1', 'user', 0.00),
+('user2@example.com', 'password2', 'user', 0.00),
+('user3@example.com', 'password3', 'user',0.00);
 
 
 

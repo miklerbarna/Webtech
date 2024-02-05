@@ -75,15 +75,18 @@ router.put("/", async (req, res) => {
                             throw new Error('This parking place is not free');
                         }
 
+
                         const place = parkingPlaceResponse.rows[0];
-                        const categoryIdQuery = `SELECT category_id FROM bike_models 
-                        WHERE model_id IN (
-                        SELECT model_id FROM bikes 
-                        WHERE bike_id=${bikeId})`;
-                        const categoryIdResponse = await pool.query(categoryIdQuery);
-                        if (categoryIdResponse.rows[0].category_id != place.category_id) {
-                            res.status(426);
-                            throw new Error('This parking place is not the right category');
+                        if (place.category_id != 4) {
+                            const categoryIdQuery = `SELECT category_id FROM bike_models 
+                            WHERE model_id IN (
+                            SELECT model_id FROM bikes 
+                            WHERE bike_id=${bikeId})`;
+                            const categoryIdResponse = await pool.query(categoryIdQuery);
+                            if (categoryIdResponse.rows[0].category_id != place.category_id) {
+                                res.status(426);
+                                throw new Error('This parking place is not the right category');
+                            }
                         }
 
                         const updateStatusQuery = `UPDATE bikes 
@@ -91,10 +94,12 @@ router.put("/", async (req, res) => {
                         WHERE bike_id=${bikeId}`;
                         const updateStatusResponse = await pool.query(updateStatusQuery);
 
-                        const updateStationQuery = `UPDATE bike_stations
-                        SET places_taken=places_taken + 1
-                        WHERE station_id=${bike.station_id}`;
-                        const updateStationResponse = await pool.query(updateStationQuery);
+                        updateStations();
+
+                        // const updateStationQuery = `UPDATE bike_stations
+                        // SET places_taken=places_taken + 1
+                        // WHERE station_id=${bike.station_id}`;
+                        // const updateStationResponse = await pool.query(updateStationQuery);
 
                     }
                 } else if (typeof value === 'string') {
@@ -130,22 +135,47 @@ router.delete("/", async (req, res) => {
 
         const bikeId = req.body.bike_id;
 
-        const stationQuery = `UPDATE bike_stations 
-        SET places_taken=places_taken - 1
-        WHERE station_id IN (
-        SELECT station_id FROM bikes WHERE bike_id = ${bikeId})`;
-        const stationResponse = await pool.query(stationQuery);
-
-
+        
+        // const stationQuery = `UPDATE bike_stations 
+        // SET places_taken=places_taken - 1
+        // WHERE station_id IN (
+            // SELECT station_id FROM bikes WHERE bike_id = ${bikeId})`;
+            // const stationResponse = await pool.query(stationQuery);
+            
+            
         const deleteQuery = `DELETE FROM bikes WHERE bike_id=${bikeId}`;
-
+        
+        
         const deleteResponse = await pool.query(deleteQuery);
-
+        
+        updateStations();
+        
         res.status(200).send("Deleted Bike");
 
     } catch (err) {
         res.status(420).send("Error when accessing database: " + err);
     }
 });
+
+
+async function updateStations() {
+    
+    const stationsQuery = `SELECT station_id FROM bike_stations`;
+    const stationsResponse = await pool.query(stationsQuery);
+
+    let stations = stationsResponse.rows;
+    
+    for (const station of stations) {
+        let bikeCountQuery = `SELECT COUNT(*) AS count FROM bikes WHERE station_id=${station.station_id}`;
+        let bikeCountResponse = await pool.query(bikeCountQuery);
+        let count = bikeCountResponse.rows[0];
+
+        let bikeStationUpdateQuery = `UPDATE bike_stations 
+        SET places_taken = ${count.count} where station_id=${station.station_id}`;
+        let bikeStationUpdateResponse = await pool.query(bikeStationUpdateQuery);
+
+        console.log("Updated station: " + station.station_id + " TO: " + count.count);
+    }
+}
 
 module.exports = router;

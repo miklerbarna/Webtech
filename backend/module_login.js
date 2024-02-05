@@ -4,7 +4,8 @@ const router = express.Router();
 
 const pool = require('./pool.js');
 
-const checkAuth = require('./auth');
+const checkUserAuth = require('./authenticator_user.js');
+const checkAdminAuth = require('./authenticator_admin.js');
 
 const jwt = require('jsonwebtoken');
 
@@ -30,11 +31,22 @@ router.post('/', async (req, res) => {
             throw new Error('Invalid password');
         }
 
-        const token = jwt.sign(
-            {"username": user.email},
-            cfg.auth.jwt_key,
-            {"expiresIn": cfg.auth.expiration}
-        );
+        let token;
+
+        if (userEmailResponse.rows[0].status == 'admin') {
+            token = jwt.sign(
+                {"username": user.email},
+                cfg.auth_admin.jwt_key,
+                {"expiresIn": cfg.auth_admin.expiration}
+            );
+        } else {
+            token = jwt.sign(
+                {"username": user.email},
+                cfg.auth_user.jwt_key,
+                {"expiresIn": cfg.auth_user.expiration}
+            );
+        }
+
 
         res.status(200).json({
             "message": "login successful",
@@ -49,9 +61,15 @@ router.post('/', async (req, res) => {
     }
 });
 
-router.get("/tryforauth", checkAuth, (req,res) => {
+router.get("/tryuser", checkUserAuth, (req,res) => {
     res.setHeader('Content-Type', 'text/html');
-    res.status(200).send("Authenticated");
+    res.status(200).send("Authenticated User");
+
+});
+
+router.get("/tryadmin", checkAdminAuth, (req,res) => {
+    res.setHeader('Content-Type', 'text/html');
+    res.status(200).send("Authenticated Admin");
 
 });
 
