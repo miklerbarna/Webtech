@@ -18,12 +18,16 @@ export class BikeStationService {
   constructor(private http: HttpClient) { }
 
   getBikeStations(): Observable<any[]> {
-    return this.http.get<any[]>(this.getAllStationsURL);
+    const httpOptions = {
+      headers: new HttpHeaders({ 'Authorization': `Bearer ${this.getToken()}` })
+    };
+    console.log("Sending token: " + this.getToken());
+    return this.http.get<any[]>(this.getAllStationsURL, httpOptions);
   }
 
   addBikeStation(newStation: any): Observable<any> {
     const httpOptions = {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+      headers: new HttpHeaders({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.getToken()}`  })
     };
     return this.http.post(this.stationURL, newStation, httpOptions);
   }
@@ -45,9 +49,15 @@ export class BikeStationService {
   }
   
   getCategories(): Observable<any[]> {
-    return this.http.get<any[]>(this.getAllCategoriesURL);
+    const httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.getToken()}`  })
+    };
+    return this.http.get<any[]>(this.getAllCategoriesURL, httpOptions);
   }
-  
+
+  private getToken(): string | null {
+    return localStorage.getItem('token');
+  }
 
 }
 

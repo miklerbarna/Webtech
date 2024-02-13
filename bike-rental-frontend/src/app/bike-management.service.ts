@@ -17,20 +17,30 @@ export class BikeManagementService {
     private modelURL = this.baseServerURL + ':3000/model';
 
     constructor(private http: HttpClient) { }
+    
   
     getBikes(): Observable<any[]> {
-      return this.http.get<any[]>(this.getAllBikesURL);
+      const httpOptions = {
+        headers: new HttpHeaders({ 'Authorization': `Bearer ${this.getToken()}` })
+      };
+      return this.http.get<any[]>(this.getAllBikesURL, httpOptions);
     }
     getCategories(): Observable<any[]> {
-      return this.http.get<any[]>(this.getAllCategoriesURL);
+      const httpOptions = {
+        headers: new HttpHeaders({ 'Authorization': `Bearer ${this.getToken()}` })
+      };
+      return this.http.get<any[]>(this.getAllCategoriesURL, httpOptions);
     }
     getModels(): Observable<any[]> {
-      return this.http.get<any[]>(this.getAllModelsURL);
+      const httpOptions = {
+        headers: new HttpHeaders({ 'Authorization': `Bearer ${this.getToken()}` })
+      };
+      return this.http.get<any[]>(this.getAllModelsURL, httpOptions);
     }
 
     deleteBike(bikeId: string): Observable<any> {
       const httpOptions = {
-        headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+        headers: new HttpHeaders({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.getToken()}` }),
         body: { bike_id: bikeId }
       };
       return this.http.delete(this.bikeURL, httpOptions);
@@ -39,7 +49,7 @@ export class BikeManagementService {
     deleteCategory(categoryId: string): Observable<any> {
       
       const httpOptions = {
-        headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' , 'Authorization': `Bearer ${this.getToken()}` }),
         body: { id: categoryId }
       };
       return this.http.delete(this.categoryURL, httpOptions);
@@ -48,7 +58,7 @@ export class BikeManagementService {
     deleteModel(modelId: string): Observable<any> {
       console.log("Delete Model" + modelId);
       const httpOptions = {
-        headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' , 'Authorization': `Bearer ${this.getToken()}` }),
         body: { model_id: modelId }
       };
       return this.http.delete(this.modelURL, httpOptions);
@@ -58,7 +68,7 @@ export class BikeManagementService {
     editCategory(categoryId: string, newName: string): Observable<any> {
       const body = { id: categoryId, name: newName }; // Request body
       const httpOptions = {
-        headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' , 'Authorization': `Bearer ${this.getToken()}` }),
       };
       return this.http.put(this.categoryURL, body, httpOptions);
       
@@ -66,7 +76,7 @@ export class BikeManagementService {
 
     editModel(updatedModel: any): Observable<any> {
       const httpOptions = {
-        headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' , 'Authorization': `Bearer ${this.getToken()}` }),
       };
       return this.http.put(this.modelURL, updatedModel, httpOptions);
       
@@ -74,7 +84,7 @@ export class BikeManagementService {
 
     editBike(updatedBike: any): Observable<any> {
       const httpOptions = {
-        headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' , 'Authorization': `Bearer ${this.getToken()}` }),
       };
       return this.http.put(this.bikeURL, updatedBike, httpOptions);
       
@@ -83,7 +93,7 @@ export class BikeManagementService {
     addCategory(categoryName: string): Observable<any> {
       const body = { name: categoryName };
       const httpOptions = {
-        headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' , 'Authorization': `Bearer ${this.getToken()}` }),
       };
       return this.http.post(this.categoryURL, body, httpOptions);
       
@@ -91,7 +101,7 @@ export class BikeManagementService {
 
     addBike(newBike: any): Observable<any> {
       const httpOptions = {
-        headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' , 'Authorization': `Bearer ${this.getToken()}` }),
       };
       return this.http.post(this.bikeURL, newBike, httpOptions);
       
@@ -99,10 +109,14 @@ export class BikeManagementService {
 
     addModel(newModel: any): Observable<any> {
       const httpOptions = {
-        headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' , 'Authorization': `Bearer ${this.getToken()}` }),
       };
       return this.http.post(this.modelURL, newModel, httpOptions);
       
+    }
+
+    private getToken(): string | null {
+      return localStorage.getItem('token');
     }
     
 }
