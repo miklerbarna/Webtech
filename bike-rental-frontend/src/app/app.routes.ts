@@ -8,7 +8,7 @@ export const routes: Routes = [
     { path: '', redirectTo: '/management', pathMatch: 'full' },
     { path: 'management', component: ManagementViewComponent },
     { path: 'bikes', component: BikeManagementComponent},
-    { path: 'customerlogin', component: CustomerLoginComponent},
+    { path: 'login', component: CustomerLoginComponent},
     { path: 'customerrental', component: CustomerRentalViewComponent},
   ];
   

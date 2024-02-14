@@ -12,13 +12,15 @@ export class LoginRegisterService {
   private baseServerURL = "http://localhost";
 
   private loginURL = this.baseServerURL + ':3000/login';
+  private registerURL = this.baseServerURL + ':3000/registration';
   private tryUserURL = this.baseServerURL + ':3000/login/tryuser';
   private tryAdminURL = this.baseServerURL + ':3000/login/tryadmin';
 
   constructor(private http: HttpClient) {this.token = "asd"; }
   
-
-
+  register(registerData: any): Observable<any> {
+    return this.http.post(this.registerURL, registerData);
+  }
 
   login(loginData: any): Observable<any> {
     return this.http.post(this.loginURL, loginData).pipe(

@@ -30,10 +30,10 @@ export class CustomerLoginComponent {
     this.loginRegisterService.login(loginData).subscribe(
       response => {
         console.log('Login success!', response);
-        const userType = response.tipus;
+        const userType = response.account_type;
         console.log("Logged in with type: " + userType);
-        if (userType === 'Admin') {
-          this.router.navigate(['/management']); // Example route for admin
+        if (userType === 'admin') {
+          this.router.navigate(['/management']);
         } else {
           this.router.navigate(['/customerrental']);
         }
@@ -51,6 +51,29 @@ export class CustomerLoginComponent {
       return;
     }
     console.log('Register Data:', this.registerData);
-    // Here you would call a service to interact with your backend
+    let registerDataBody: {[key: string]: any} = {};
+    registerDataBody['email'] = this.registerData.username;
+    registerDataBody['password'] = this.registerData.password;
+
+    this.loginRegisterService.register(registerDataBody).subscribe(
+      response => {
+        console.log('Register success!', response);
+        const userType = response.account_type;
+        console.log("Logged in with type: " + userType);
+        if (userType === 'admin') {
+          this.router.navigate(['/management']);
+        } else {
+          this.router.navigate(['/customerrental']);
+        }
+      },
+      error => {
+        console.error('Login failed!', error.status);
+        if (error.status == 200){
+            alert("Registered successfully! Please log in.");
+        }
+      }
+    );
+
+
   }
 }

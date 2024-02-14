@@ -52,7 +52,7 @@ router.post('/', async (req, res) => {
             "message": "login successful",
             login: user.email,
             token: token,
-            status: userEmailResponse.rows[0].status
+            account_type: userEmailResponse.rows[0].status
         });
 
 

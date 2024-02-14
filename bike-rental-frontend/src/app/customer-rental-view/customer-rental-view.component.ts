@@ -6,7 +6,8 @@ import { FormsModule } from '@angular/forms';
 
 interface Review {
   rating: number;
-  reviewText: string;
+  text: string;
+  station_id: number;
 }
 
 const customIcon = L.icon({
@@ -28,7 +29,7 @@ export class CustomerRentalViewComponent implements AfterViewInit, OnDestroy {
   bikeStations: any[] = [];
   public selectedStation: any = null; // Make sure this is public if you need to access it in your template
 
-  review: Review = { rating: 1, reviewText: '' }; 
+  review: Review = { rating: 1, text: '', station_id: 1 }; 
 
   constructor(private customerRentalViewService: CustomerRentalViewService) {}
 
@@ -72,12 +73,29 @@ export class CustomerRentalViewComponent implements AfterViewInit, OnDestroy {
     return new Promise((resolve, reject) => {
       this.customerRentalViewService.getBikeStations().subscribe(stations => {
         this.bikeStations = stations;
+        this.refreshSelectedStation();
+        console.log("Refreshed bike stations!");
         resolve();
       }, error => {
         console.error('Error fetching bike stations:', error);
         reject(error);
       });
     });
+  }
+
+  refreshSelectedStation(): void{
+    if (this.selectedStation && this.selectedStation.station_id) {
+      const stationToUpdate = this.bikeStations.find(station => station.station_id === this.selectedStation.station_id);
+      
+      if (stationToUpdate) {
+        console.log("Refreshed current Selected station!");
+        this.selectedStation = { ...stationToUpdate };
+      } else {
+        console.log(`Station with ID ${this.selectedStation.station_id} not found.`);
+      }
+    } else {
+      console.log("No station selected or selected station has no ID.");
+    }
   }
 
   private selectStation(stationId: number): void {
@@ -94,16 +112,22 @@ export class CustomerRentalViewComponent implements AfterViewInit, OnDestroy {
 
   submitReview(): void {
     // Add logic to submit the review
-    if (this.review.rating && this.review.reviewText) {
+    if (this.review.rating && this.review.text) {
+      this.review.station_id = this.selectedStation.station_id;
       // Here you can send the review data to your backend or perform any necessary action
       console.log('Submitting review:', this.review);
-      this.customerRentalViewService.postStationReview(this.review).subscribe(response => {
-        console.log("Response: ", response);
-        this.refreshStations();
-        
-      });
+      this.customerRentalViewService.postStationReview(this.review).subscribe(
+        response => {
+          console.log("Response: ", response);
+          this.refreshStations();
+        },
+        error => {
+          console.error('Error updating Station', error);
+          console.log("Response: ", error);
+          this.refreshStations();
+        });
       // Clear the review form after submission
-      this.review = { rating: 1, reviewText: '' };
+      this.review = { rating: 1, text: '', station_id : 1 };
     } else {
       alert('Please provide both a rating and a review text.');
     }

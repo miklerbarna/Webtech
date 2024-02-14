@@ -14,7 +14,7 @@ export class BikeStationService {
   private getAllStationsURL = this.baseServerURL + ':3000/stations';
   private stationURL = this.baseServerURL + ':3000/station';
   private getAllCategoriesURL = this.baseServerURL + ':3000/categories';
-  private postStationReviewURL = this.baseServerURL + ':3000/user/station';
+  private postStationReviewURL = this.baseServerURL + ':3000/review/station';
   
 
   constructor(private http: HttpClient) { }
