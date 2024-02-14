@@ -13,7 +13,7 @@ const jwt = require('jsonwebtoken');
 router.post('/', async (req, res) => {
 
     try {
-        res.setHeader('Content-Type', 'text/html');
+        res.setHeader('Content-Type', 'application/json');
         
         const user = req.body;
         const userEmailQuery = `SELECT * FROM USERS 
@@ -51,7 +51,8 @@ router.post('/', async (req, res) => {
         res.status(200).json({
             "message": "login successful",
             login: user.email,
-            token: token
+            token: token,
+            status: userEmailResponse.rows[0].status
         });
 
 
@@ -60,6 +61,7 @@ router.post('/', async (req, res) => {
         res.send("Login error: " + err);
     }
 });
+
 
 
 //Dummy routers to test authenticators

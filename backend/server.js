@@ -34,10 +34,13 @@ const userRouter = require('./module_user.js');
 app.use('/user', userRouter);
 
 const reviewRouter = require('./module_review.js');
-app.use('/user', reviewRouter);
+app.use('/review', reviewRouter);
 
 const loginRouter = require('./module_login.js');
 app.use('/login', loginRouter);
+
+const registrationRouter = require('./module_registration.js');
+app.use('/registration', registrationRouter);
 
 
 app.get("/", (req, res) => {

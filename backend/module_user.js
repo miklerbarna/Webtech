@@ -4,6 +4,7 @@ const router = express.Router();
 
 const pool = require('./pool.js');
 const checkAdminAuth = require('./authenticator_admin.js');
+const checkUserAuth = require('./authenticator_user.js');
 
 
 router.post("/", checkAdminAuth, async (req,res) => {
@@ -45,5 +46,30 @@ router.delete("/", checkAdminAuth, async (req, res) => {
         res.status(422).send("Error when accessing database: " + err);
     }
 });
+
+
+router.put("/wallet", checkUserAuth , async (req, res) => {
+    try {
+        res.setHeader('Content-Type', 'text/html');
+
+        console.log(req.body.value);
+        const updateWalletQuery = `UPDATE users SET 
+        wallet_balance=${req.body.value} 
+        WHERE email='${req.user.username}'`;
+        const updateWalletResponse = await pool.query(updateWalletQuery);
+        if (updateWalletResponse.rowCount == 0) {
+            res.status(451);
+                throw new Error('Failed to Update wallet');
+        }
+
+        res.status(200).send("Wallet updated");
+
+    } catch (err) {
+        res.status(450).send("Error when accessing database: " + err);
+    }
+
+});
+
+
 
 module.exports = router;

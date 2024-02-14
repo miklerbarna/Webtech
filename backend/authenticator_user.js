@@ -10,15 +10,24 @@ function authenticateUser(req, res, next) {
 
   let token = tokenHeader.split(' ')[1];
 
-  jwt.verify(token, cfg.auth_user.jwt_key, (err, user) => {
-    if (err) {
-        console.log(err);
-        return res.status(403).json({ message: 'Forbidden - Invalid token for User' });
+  //If admin, let it in always
+  jwt.verify(token, cfg.auth_admin.jwt_key, (err, user) => {
+    if (!err) {
+        req.user = user;
+        next();
+    } else {
+      jwt.verify(token, cfg.auth_user.jwt_key, (err, user) => {
+        if (err) {
+            console.log(err);
+            return res.status(403).json({ message: 'Forbidden - Invalid token for User' });
+        }
+    
+        req.user = user;
+        next();
+      });
     }
-
-    req.user = user;
-    next();
   });
+
 }
 
 module.exports = authenticateUser;
