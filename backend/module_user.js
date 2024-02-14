@@ -52,7 +52,6 @@ router.put("/wallet", checkUserAuth , async (req, res) => {
     try {
         res.setHeader('Content-Type', 'text/html');
 
-        console.log(req.body.value);
         const updateWalletQuery = `UPDATE users SET 
         wallet_balance=${req.body.value} 
         WHERE email='${req.user.username}'`;

@@ -183,10 +183,10 @@ INSERT INTO bikes(model_id, unique_id, station_id, place_id, place_number, statu
 (4,	'CH10',	3,25,5, 'parked');
 
 INSERT INTO users(email, password, status, wallet_balance) VALUES
-('admin@example.com', 'adminpassword', 'admin', 0.00),
-('user1@example.com', 'password1', 'user', 0.00),
-('user2@example.com', 'password2', 'user', 0.00),
-('user3@example.com', 'password3', 'user',0.00);
+('admin@example.com', 'adminpassword', 'admin', 999999.00),
+('user1@example.com', 'password1', 'user', 100.00),
+('user2@example.com', 'password2', 'user', 120.00),
+('user3@example.com', 'password3', 'user', 90.00);
 
 
 
