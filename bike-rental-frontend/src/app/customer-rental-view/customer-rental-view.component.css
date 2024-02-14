@@ -91,5 +91,67 @@
     font-size: large;
     font-weight: bold;
   }
+
+  .station-reviews {
+    margin-top: 20px;
+  }
+  
+  .review-item {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .review-item p {
+    margin: 5px 0;
+  }
+  
+  .review-rating {
+    background-color: #f0f0f0;
+    padding: 5px;
+    border-radius: 5px;
+    margin-bottom: 5px;
+  }
+  
+  .review-text {
+    margin-top: 10px;
+  }
+  
+  .write-review {
+    margin-top: 20px;
+  }
+  
+  .write-review h4 {
+    margin-bottom: 10px;
+  }
+  
+  .write-review label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .write-review input[type="number"],
+  .write-review textarea {
+    width: calc(100% - 18px); /* Adjust width to accommodate padding and border */
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    box-sizing: border-box; /* Include padding and border in the width calculation */
+  }
+  
+  .write-review button {
+    padding: 8px 20px;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: #fff;
+    cursor: pointer;
+  }
+  
+  .write-review button:hover {
+    background-color: #0056b3;
+  }
   
   

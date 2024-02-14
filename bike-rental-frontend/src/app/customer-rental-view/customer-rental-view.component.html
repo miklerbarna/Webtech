@@ -34,5 +34,22 @@
         <p><strong>User {{ review.user_id }}:</strong> {{ review.review_text }} (Rating: {{ review.rating }}/5)</p>
       </div>
     </div>
+
+    <div *ngIf="selectedStation" class="station-details">
+      <!-- Other station details -->
+  
+  </div><!-- New review form -->
+  <div class="write-review">
+      <h4>Write a Review:</h4>
+      <div>
+          <label for="rating">Rating (1-5):</label>
+          <input type="number" min="1" max="5" [(ngModel)]="review.rating" name="rating">
+      </div>
+      <div>
+          <label for="reviewText">Review Text:</label>
+          <textarea rows="4" [(ngModel)]="review.reviewText" name="reviewText"></textarea>
+      </div>
+      <button (click)="submitReview()">Submit Review</button>
+  </div>
     
 </div>

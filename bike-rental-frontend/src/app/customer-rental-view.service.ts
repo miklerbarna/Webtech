@@ -13,4 +13,7 @@ export class CustomerRentalViewService {
   getBikeStations(): Observable<any[]> {
     return this.bikeStationService.getBikeStations();
   }
+  postStationReview(review : any): Observable<any[]> {
+    return this.bikeStationService.postStationReview(review);
+  }
 }

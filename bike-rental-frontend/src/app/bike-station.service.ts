@@ -14,6 +14,8 @@ export class BikeStationService {
   private getAllStationsURL = this.baseServerURL + ':3000/stations';
   private stationURL = this.baseServerURL + ':3000/station';
   private getAllCategoriesURL = this.baseServerURL + ':3000/categories';
+  private postStationReviewURL = this.baseServerURL + ':3000/user/station';
+  
 
   constructor(private http: HttpClient) { }
 
@@ -57,6 +59,13 @@ export class BikeStationService {
 
   private getToken(): string | null {
     return localStorage.getItem('token');
+  }
+
+  postStationReview(review: any): Observable<any> {
+    const httpOptions = {
+      headers: new HttpHeaders({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.getToken()}`  })
+    };
+    return this.http.post(this.postStationReviewURL, review, httpOptions);
   }
 
 }

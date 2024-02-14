@@ -2,6 +2,12 @@ import { Component, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular
 import * as L from 'leaflet';
 import { CustomerRentalViewService } from '../customer-rental-view.service'; // Adjust the path as necessary
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+
+interface Review {
+  rating: number;
+  reviewText: string;
+}
 
 const customIcon = L.icon({
   iconUrl: 'assets/icons/map_pins.png',
@@ -13,7 +19,7 @@ const customIcon = L.icon({
 @Component({
   selector: 'app-customer-rental-view',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './customer-rental-view.component.html',
   styleUrls: ['./customer-rental-view.component.css']
 })
@@ -21,6 +27,8 @@ export class CustomerRentalViewComponent implements AfterViewInit, OnDestroy {
   private map?: L.Map;
   bikeStations: any[] = [];
   public selectedStation: any = null; // Make sure this is public if you need to access it in your template
+
+  review: Review = { rating: 1, reviewText: '' }; 
 
   constructor(private customerRentalViewService: CustomerRentalViewService) {}
 
@@ -60,6 +68,18 @@ export class CustomerRentalViewComponent implements AfterViewInit, OnDestroy {
     });
   }
 
+  refreshStations(): Promise<void>{
+    return new Promise((resolve, reject) => {
+      this.customerRentalViewService.getBikeStations().subscribe(stations => {
+        this.bikeStations = stations;
+        resolve();
+      }, error => {
+        console.error('Error fetching bike stations:', error);
+        reject(error);
+      });
+    });
+  }
+
   private selectStation(stationId: number): void {
     
       const station = this.bikeStations.find(s => s.station_id === stationId);
@@ -70,5 +90,22 @@ export class CustomerRentalViewComponent implements AfterViewInit, OnDestroy {
   deSelectStation() : void{
     console.log("Deselect station!");
     this.selectedStation = null;
+  }
+
+  submitReview(): void {
+    // Add logic to submit the review
+    if (this.review.rating && this.review.reviewText) {
+      // Here you can send the review data to your backend or perform any necessary action
+      console.log('Submitting review:', this.review);
+      this.customerRentalViewService.postStationReview(this.review).subscribe(response => {
+        console.log("Response: ", response);
+        this.refreshStations();
+        
+      });
+      // Clear the review form after submission
+      this.review = { rating: 1, reviewText: '' };
+    } else {
+      alert('Please provide both a rating and a review text.');
+    }
   }
 }
