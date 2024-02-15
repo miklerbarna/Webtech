@@ -14,9 +14,7 @@ const pool = require('./pool.js');
 let bodyParser = require('body-parser');
 app.use(bodyParser.json()); 
 
-
 const checkUserAuth = require('./authenticator_user.js');
-
 
 const stationRouter = require('./module_station.js');
 app.use('/station', stationRouter);
