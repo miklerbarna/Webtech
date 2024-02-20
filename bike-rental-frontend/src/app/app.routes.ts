@@ -5,7 +5,7 @@ import { CustomerLoginComponent } from './customer-login/customer-login.componen
 import { CustomerRentalViewComponent } from './customer-rental-view/customer-rental-view.component';
 
 export const routes: Routes = [
-    { path: '', redirectTo: '/login', pathMatch: 'full' },
+    { path: '', redirectTo: '/login', pathMatch: 'full'},
     { path: 'management', component: ManagementViewComponent },
     { path: 'bikes', component: BikeManagementComponent},
     { path: 'login', component: CustomerLoginComponent},

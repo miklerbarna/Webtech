@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { LoginRegisterService } from '../login-register.service';
 import { Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-customer-login',
@@ -15,8 +16,12 @@ export class CustomerLoginComponent {
   constructor(
     
     private loginRegisterService: LoginRegisterService,
-    private router: Router 
-    ) { }
+    private router: Router,
+    private titleService: Title
+  ) { }
+  ngOnInit() {
+    this.titleService.setTitle('Login and Register');
+  }
 
   loginData = { username: '', password: '' };
   registerData = { username: '', password: '', confirmPassword: '' };
@@ -40,6 +45,7 @@ export class CustomerLoginComponent {
       },
       error => {
         console.error('Login failed!', error);
+        alert("Invalid username or password!");
       }
     );
 

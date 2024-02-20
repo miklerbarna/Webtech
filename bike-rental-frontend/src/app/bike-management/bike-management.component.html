@@ -89,7 +89,7 @@
     <div class="bike-reviews">
         <h4>Customer Reviews:</h4>
         <div *ngFor="let review of selectedBike.reviews">
-        <p><strong>User #{{ review.customer_id }}:</strong> {{ review.review_text }} (Rating: {{ review.rating }}/5)</p>
+        <p><strong>User #{{ review.user_id }}:</strong> {{ review.review_text }} (Rating: {{ review.rating }}/5)</p>
         </div>
     </div>
     <button (click)="editBike(selectedBike)">Edit Bike</button>

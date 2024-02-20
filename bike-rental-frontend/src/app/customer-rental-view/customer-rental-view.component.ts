@@ -3,6 +3,7 @@ import * as L from 'leaflet';
 import { CustomerRentalViewService } from '../customer-rental-view.service'; // Adjust the path as necessary
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Title } from '@angular/platform-browser';
 
 interface Review {
   rating: number;
@@ -31,11 +32,13 @@ export class CustomerRentalViewComponent implements AfterViewInit, OnDestroy {
 
   review: Review = { rating: 1, text: '', station_id: 1 }; 
 
-  constructor(private customerRentalViewService: CustomerRentalViewService) {}
+  constructor(private customerRentalViewService: CustomerRentalViewService, private titleService: Title) {}
 
   ngAfterViewInit(): void {
+    this.titleService.setTitle('Rental Map View');
     this.initMap();
     this.loadStations();
+    
 
     // Connect the global function to a method inside this component
     (window as any).triggerStationSelect = this.selectStation.bind(this);
@@ -58,10 +61,10 @@ export class CustomerRentalViewComponent implements AfterViewInit, OnDestroy {
       this.bikeStations = stations;
       stations.forEach(station => {
         const popupContent = `
-          <strong>${station.name}</strong><br>
+          <strong style="font-size: 16px;">${station.name}</strong><br>
           Address: ${station.address}, ${station.city}<br>
           Places Taken: ${station.places_taken}/${station.places_all}<br>
-          <button onclick="window.triggerStationSelect(${station.station_id})">View Details</button>
+          <button style="border-radius: 5px; cursor: pointer; font-size: 12px; margin-top: 3px; padding: 3px; font-weight: 600; border-width: 1px; box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.17);" onclick="window.triggerStationSelect(${station.station_id})">View Details</button>
         `;
         L.marker([station.latitude, station.longitude], { icon: customIcon }).addTo(this.map!)
           .bindPopup(popupContent);

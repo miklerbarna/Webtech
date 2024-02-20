@@ -36,7 +36,7 @@ export class BikeStationService {
   
   editBikeStation(updatedStation: any): Observable<any> {
     const httpOptions = {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' })
+      headers: new HttpHeaders({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.getToken()}`  })
     };
     return this.http.put(this.stationURL, updatedStation, httpOptions);
     
@@ -44,7 +44,7 @@ export class BikeStationService {
 
   deleteBikeStation(stationId: string): Observable<any> {
     const httpOptions = {
-      headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      headers: new HttpHeaders({ 'Content-Type': 'application/json', 'Authorization': `Bearer ${this.getToken()}`  }),
       body: { station_id: stationId }
     };
     return this.http.delete(this.stationURL, httpOptions);

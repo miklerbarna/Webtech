@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BikeStationService } from '../bike-station.service';
 import { Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-management-view',
@@ -17,10 +18,12 @@ export class ManagementViewComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private bikeStationService: BikeStationService    
+    private bikeStationService: BikeStationService,
+    private titleService: Title   
     ) { }
 
     ngOnInit(): void {
+      this.titleService.setTitle('Management View');
       this.refreshStations();
       this.refreshCategories();
     }

@@ -180,6 +180,9 @@ export class BikeManagementComponent implements OnInit {
           this.refreshBikes().then(() => {
             this.refreshSelectedBike(selectedBike);
           });
+          if (error.status != 200) {
+            alert("Error Updating Bike!");
+          }
         }
       );
     }

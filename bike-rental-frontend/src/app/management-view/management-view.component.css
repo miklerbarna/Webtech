@@ -78,4 +78,25 @@
     font-weight: bold;
   }
   
+  .station-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  /* Hover effect for bike cards */
+  .station-item:hover {
+    transform: scale(1.01);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    background-color: #f9f9f9;
+  }
+
+  button:hover {
+    background-color: #ddd;
+    transition: background-color 0.3s ease;
+  }
   
